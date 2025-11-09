@@ -493,7 +493,7 @@ export function Thread() {
                                   form?.requestSubmit();
                                 }, 0);
                               }}
-                              className="group relative overflow-hidden rounded-xl border border-border bg-card hover:bg-accent hover:border-primary transition-all duration-200 p-4 text-left shadow-sm hover:shadow-md min-h-[3.5rem] flex items-center"
+                              className="group relative overflow-hidden rounded-xl border border-border bg-card hover:bg-accent hover:border-primary transition-all duration-200 p-4 text-left shadow-sm hover:shadow-md min-h-[4rem] flex items-center cursor-pointer"
                             >
                               <p className="text-sm text-foreground line-clamp-2 group-hover:text-primary transition-colors">
                                 {opener}
