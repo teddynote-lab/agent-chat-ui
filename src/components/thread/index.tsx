@@ -482,7 +482,7 @@ export function Thread() {
                         )}
                       </div>
                       {config.branding.chatOpeners && config.branding.chatOpeners.length > 0 && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-[calc(100%_-_8rem)]">
                           {config.branding.chatOpeners.slice(0, 4).map((opener, index) => (
                             <button
                               key={index}
