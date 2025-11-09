@@ -403,7 +403,7 @@ export function Thread() {
             <StickyToBottomContent
               className={cn(
                 "absolute inset-0 overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent",
-                !chatStarted && "mt-[25vh] flex flex-col items-stretch",
+                !chatStarted && "mt-0 flex flex-col items-stretch justify-center",
                 chatStarted && "grid grid-rows-[1fr_auto]",
                 userSettings.chatWidth === "default" ? "px-4" : "px-2",
               )}
@@ -447,7 +447,7 @@ export function Thread() {
                 </>
               }
               footer={
-                <div className="sticky bottom-0 flex flex-col items-center gap-20 bg-background">
+                <div className="sticky bottom-0 flex flex-col items-center gap-10 bg-background">
                   {!chatStarted && (
                     <div className={cn(
                       "flex flex-col items-center gap-6 w-full mx-auto",
