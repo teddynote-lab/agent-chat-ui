@@ -102,7 +102,7 @@ function OpenGitHubRepo() {
           <a
             href="https://github.com/teddylee777/agent-chat-ui"
             target="_blank"
-            className="flex items-center justify-center"
+            className="flex items-center justify-center pr-3"
           >
             <GitHubSVG
               width="24"
