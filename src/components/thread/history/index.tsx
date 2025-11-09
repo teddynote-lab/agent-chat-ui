@@ -1,6 +1,7 @@
 "use client";
 
 import { useThreads } from "@/providers/Thread";
+import { useSettings } from "@/providers/Settings";
 import { useEffect } from "react";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -12,25 +13,41 @@ interface ThreadHistoryProps {
 }
 
 export default function ThreadHistory({ onShowGuide }: ThreadHistoryProps) {
+  const { config } = useSettings();
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
   const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
     "chatHistoryOpen",
-    parseAsBoolean.withDefault(false),
+    parseAsBoolean.withDefault(config.threads.sidebarOpenByDefault),
   );
   const [threadId, setThreadId] = useQueryState("threadId");
+  const [apiUrl] = useQueryState("apiUrl");
+  const [assistantId] = useQueryState("assistantId");
+  const envApiUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
+  const envAssistantId: string | undefined =
+    process.env.NEXT_PUBLIC_ASSISTANT_ID;
+  const finalApiUrl = apiUrl || envApiUrl;
+  const finalAssistantId = assistantId || envAssistantId;
 
   const { getThreads, threads, setThreads, threadsLoading, setThreadsLoading } =
     useThreads();
 
-  // Load threads on mount
+  // Load threads when apiUrl and assistantId are available
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (!finalApiUrl || !finalAssistantId) return;
+
     setThreadsLoading(true);
     getThreads()
       .then(setThreads)
       .catch(console.error)
       .finally(() => setThreadsLoading(false));
-  }, [getThreads]);
+  }, [
+    finalApiUrl,
+    finalAssistantId,
+    getThreads,
+    setThreads,
+    setThreadsLoading,
+  ]);
 
   const handleNewChat = () => {
     setThreadId(null);
