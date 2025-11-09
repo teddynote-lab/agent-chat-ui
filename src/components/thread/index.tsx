@@ -290,9 +290,6 @@ export function Thread() {
               <div className="flex-1 overflow-hidden">
                 <ThreadHistory onShowGuide={() => setFullDescriptionOpen(true)} />
               </div>
-              <div className="border-t border-border p-4">
-                <SettingsDialog />
-              </div>
             </div>
           </motion.div>
         </div>

@@ -6,6 +6,7 @@ import { NewChatButton } from "./NewChatButton";
 import { ThreadList } from "./ThreadList";
 import { ThreadHistoryLoading } from "./ThreadHistoryLoading";
 import { ICON_SIZE_SM } from "../constants";
+import { SettingsDialog } from "@/components/settings/SettingsDialog";
 
 interface DesktopSidebarProps {
   threads: Thread[];
@@ -71,6 +72,10 @@ export function DesktopSidebar({
         ) : (
           <ThreadList threads={threads} />
         )}
+      </div>
+
+      <div className="border-t border-border p-4">
+        <SettingsDialog />
       </div>
     </div>
   );
