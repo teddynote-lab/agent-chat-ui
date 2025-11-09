@@ -39,20 +39,25 @@ export function ThreadProvider({ children }: { children: ReactNode }) {
   const [assistantId] = useQueryState("assistantId");
   const [threads, setThreads] = useState<Thread[]>([]);
   const [threadsLoading, setThreadsLoading] = useState(false);
+  const envApiUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
+  const envAssistantId: string | undefined =
+    process.env.NEXT_PUBLIC_ASSISTANT_ID;
+  const finalApiUrl = apiUrl || envApiUrl;
+  const finalAssistantId = assistantId || envAssistantId;
 
   const getThreads = useCallback(async (): Promise<Thread[]> => {
-    if (!apiUrl || !assistantId) return [];
-    const client = createClient(apiUrl, getApiKey() ?? undefined);
+    if (!finalApiUrl || !finalAssistantId) return [];
+    const client = createClient(finalApiUrl, getApiKey() ?? undefined);
 
     const threads = await client.threads.search({
       metadata: {
-        ...getThreadSearchMetadata(assistantId),
+        ...getThreadSearchMetadata(finalAssistantId),
       },
       limit: 100,
     });
 
     return threads;
-  }, [apiUrl, assistantId]);
+  }, [finalApiUrl, finalAssistantId]);
 
   const value = useMemo(
     () => ({
