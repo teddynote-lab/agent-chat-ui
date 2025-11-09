@@ -365,10 +365,11 @@ export function Thread() {
                   )}
                 </div>
                 <motion.button
-                  className="flex cursor-pointer items-center gap-2"
+                  className="flex cursor-pointer items-center gap-2 mt-3 ml-3"
                   onClick={() => setThreadId(null)}
                   animate={{
-                    marginLeft: config.threads.showHistory && !chatHistoryOpen ? 48 : 0,
+                    //marginLeft: config.threads.showHistory && !chatHistoryOpen ? 48 : 0,
+                    translateX: config.threads.showHistory && !chatHistoryOpen ? 48 : 0,
                   }}
                   transition={{
                     type: "spring",
