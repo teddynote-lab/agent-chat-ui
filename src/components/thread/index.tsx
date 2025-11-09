@@ -325,7 +325,7 @@ export function Thread() {
           }
         >
           {!chatStarted && (
-            <div className="absolute top-0 left-0 z-10 flex w-full items-center justify-between gap-3 p-2 pl-4">
+            <div className="absolute top-0 left-0 z-10 flex w-full items-center justify-between gap-3 p-3">
               <div>
                 {config.threads.showHistory && (!chatHistoryOpen || !isLargeScreen) && (
                   <Button
