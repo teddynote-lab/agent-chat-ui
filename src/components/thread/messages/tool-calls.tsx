@@ -203,8 +203,8 @@ export function ToolResult({
                 </svg>
               </div>
               {message.name ? (
-                <h3 className="font-medium text-foreground text-sm">
-                  Tool Result:{" "}
+                <h3 className="font-medium text-foreground text-sm flex gap-2 items-center">
+                  Tool Result
                   <code className="rounded-md bg-muted/70 px-2 py-0.5 text-xs font-mono text-muted-foreground/80 border border-border/30">
                     {message.name}
                   </code>
