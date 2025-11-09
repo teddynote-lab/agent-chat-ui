@@ -102,7 +102,7 @@ function OpenGitHubRepo() {
           <a
             href="https://github.com/teddylee777/agent-chat-ui"
             target="_blank"
-            className="flex items-center justify-center pr-3"
+            className="flex items-center justify-center pr-3 h-9"
           >
             <GitHubSVG
               width="24"
@@ -322,11 +322,11 @@ export function Thread() {
           }
         >
           {!chatStarted && (
-            <div className="absolute top-0 left-0 z-10 flex w-full items-center justify-between gap-3 p-3">
+            <div className="absolute top-0 left-0 z-10 flex w-full items-center justify-between gap-3 p-4">
               <div>
                 {config.threads.showHistory && (!chatHistoryOpen || !isLargeScreen) && (
                   <Button
-                    className="hover:bg-accent"
+                    className="hover:bg-accent cursor-pointer"
                     variant="ghost"
                     onClick={() => setChatHistoryOpen((p) => !p)}
                   >
@@ -342,7 +342,7 @@ export function Thread() {
             </div>
           )}
           {chatStarted && (
-            <div className="relative z-10 flex items-center justify-between gap-3 p-2">
+            <div className="absolute top-0 left-0 z-10 w-full flex items-center justify-between gap-3 p-4">
               <div className="relative flex items-center justify-start gap-2">
                 <div className="absolute left-0 z-10">
                   {config.threads.showHistory && (!chatHistoryOpen || !isLargeScreen) && (
@@ -360,7 +360,7 @@ export function Thread() {
                   )}
                 </div>
                 <motion.button
-                  className="flex cursor-pointer items-center gap-2 mt-3 ml-3"
+                  className="flex cursor-pointer items-center gap-2 ml-2"
                   onClick={() => setThreadId(null)}
                   animate={{
                     //marginLeft: config.threads.showHistory && !chatHistoryOpen ? 48 : 0,
@@ -384,17 +384,13 @@ export function Thread() {
                 </motion.button>
               </div>
 
-              <div className="flex items-center gap-2">
-                <div className="flex items-center">
-                  <OpenGitHubRepo />
-                </div>
-              </div>
+              <OpenGitHubRepo />
 
               <div className="from-background to-background/0 absolute inset-x-0 top-full h-5 bg-gradient-to-b" />
             </div>
           )}
 
-          <StickToBottom className="relative flex-1 overflow-hidden">
+          <StickToBottom className="relative mt-[68px] flex-1 overflow-hidden">
             <StickyToBottomContent
               className={cn(
                 "absolute inset-0 overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent",
@@ -403,7 +399,7 @@ export function Thread() {
                 userSettings.chatWidth === "default" ? "px-4" : "px-2",
               )}
               contentClassName={cn(
-                "pt-8 pb-16 mx-auto flex flex-col gap-6 w-full",
+                messages.length > 0 ? "pt-8 pb-16 mx-auto flex flex-col gap-6 w-full" : "",
                 userSettings.chatWidth === "default" ? "max-w-3xl" : "max-w-5xl"
               )}
               content={
@@ -442,7 +438,7 @@ export function Thread() {
                 </>
               }
               footer={
-                <div className="sticky bottom-0 flex flex-col items-center gap-10 bg-background">
+                <div className="sticky bottom-0 flex flex-col items-center gap-10 bg-none">
                   {!chatStarted && (
                     <div className={cn(
                       "flex flex-col items-center gap-6 w-full mx-auto",
