@@ -286,7 +286,7 @@ export function ToolResult({
                         </tbody>
                       </table>
                     ) : (
-                      <code className="block rounded-lg bg-muted/40 px-3 py-2.5 text-sm font-mono border border-border/30 leading-relaxed">
+                      <code className="block rounded-lg bg-muted/40 px-3 py-2.5 text-sm font-mono border border-border/30 leading-relaxed whitespace-pre-wrap">
                         {displayedContent}
                       </code>
                     )}
