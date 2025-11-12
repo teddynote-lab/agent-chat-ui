@@ -40,10 +40,9 @@ export function ThreadProvider({ children }: { children: ReactNode }) {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [threadsLoading, setThreadsLoading] = useState(false);
   const envApiUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
-  const envAssistantId: string | undefined =
-    process.env.NEXT_PUBLIC_ASSISTANT_ID;
   const finalApiUrl = apiUrl || envApiUrl;
-  const finalAssistantId = assistantId || envAssistantId;
+  const sanitizedAssistantId = assistantId?.trim();
+  const finalAssistantId = sanitizedAssistantId || undefined;
 
   const getThreads = useCallback(async (): Promise<Thread[]> => {
     if (!finalApiUrl || !finalAssistantId) return [];

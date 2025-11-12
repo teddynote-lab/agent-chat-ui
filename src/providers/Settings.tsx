@@ -9,7 +9,7 @@ import { ChatConfig, defaultConfig, loadConfig } from "@/lib/config";
 
 // User settings that can be customized in the UI
 export interface UserSettings {
-  fontFamily: "sans" | "serif" | "mono";
+  fontFamily: "sans" | "serif" | "mono" | "pretendard";
   fontSize: "small" | "medium" | "large";
   colorScheme: "light" | "dark" | "auto";
   autoCollapseToolCalls: boolean;
@@ -100,6 +100,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
       sans: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
       serif: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif",
       mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+      pretendard: "'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif",
     };
     root.style.setProperty("--font-family", fontFamilyMap[userSettings.fontFamily]);
 

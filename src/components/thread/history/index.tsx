@@ -23,10 +23,8 @@ export default function ThreadHistory({ onShowGuide }: ThreadHistoryProps) {
   const [apiUrl] = useQueryState("apiUrl");
   const [assistantId] = useQueryState("assistantId");
   const envApiUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
-  const envAssistantId: string | undefined =
-    process.env.NEXT_PUBLIC_ASSISTANT_ID;
   const finalApiUrl = apiUrl || envApiUrl;
-  const finalAssistantId = assistantId || envAssistantId;
+  const finalAssistantId = assistantId?.trim();
 
   const { getThreads, threads, setThreads, threadsLoading, setThreadsLoading } =
     useThreads();
