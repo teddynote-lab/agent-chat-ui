@@ -1,5 +1,5 @@
 import { parsePartialJson } from "@langchain/core/output_parsers";
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext } from "@/hooks/useStreamContext";
 import { AIMessage, Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { getContentString } from "../utils";
 import { BranchSwitcher, CommandBar } from "./shared";
@@ -100,7 +100,7 @@ function Interrupt({
       {interruptValue &&
       !isAgentInboxInterruptSchema(interruptValue) &&
       (isLastMessage || hasNoAIOrToolMessages) ? (
-        <GenericInterruptView interrupt={interruptValue} />
+        <GenericInterruptView interrupt={interruptValue as Record<string, unknown> | Record<string, unknown>[]} />
       ) : null}
     </>
   );

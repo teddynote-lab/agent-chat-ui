@@ -1,7 +1,7 @@
 "use client";
 
-import { useThreads } from "@/providers/Thread";
-import { useSettings } from "@/providers/Settings";
+import { useThreads } from "@/hooks/useThreads";
+import { useSettings } from "@/hooks/useSettings";
 import { useEffect } from "react";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { useMediaQuery } from "@/hooks/useMediaQuery";

@@ -9,8 +9,9 @@ export function prettifyText(action: string) {
 }
 
 export function isArrayOfMessages(
-  value: Record<string, any>[],
+  value: unknown,
 ): value is BaseMessage[] {
+  if (!Array.isArray(value)) return false;
   if (
     value.every(isBaseMessage) ||
     (Array.isArray(value) &&

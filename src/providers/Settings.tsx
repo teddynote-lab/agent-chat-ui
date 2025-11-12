@@ -1,6 +1,5 @@
 import React, {
   createContext,
-  useContext,
   useState,
   useEffect,
   ReactNode,
@@ -16,14 +15,14 @@ export interface UserSettings {
   chatWidth: "default" | "wide";
 }
 
-interface SettingsContextType {
+export interface SettingsContextType {
   config: ChatConfig;
   userSettings: UserSettings;
   updateUserSettings: (settings: Partial<UserSettings>) => void;
   resetUserSettings: () => void;
 }
 
-const SettingsContext = createContext<SettingsContextType | undefined>(
+export const SettingsContext = createContext<SettingsContextType | undefined>(
   undefined,
 );
 
@@ -147,12 +146,4 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
       {children}
     </SettingsContext.Provider>
   );
-};
-
-export const useSettings = (): SettingsContextType => {
-  const context = useContext(SettingsContext);
-  if (context === undefined) {
-    throw new Error("useSettings must be used within a SettingsProvider");
-  }
-  return context;
 };

@@ -2,7 +2,7 @@ import { AIMessage, ToolMessage } from "@langchain/langgraph-sdk";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useSettings } from "@/providers/Settings";
+import { useSettings } from "@/hooks/useSettings";
 
 function isComplexValue(value: unknown): boolean {
   return Array.isArray(value) || (typeof value === "object" && value !== null);
@@ -152,7 +152,7 @@ export function ToolResult({
     }
   }, [isLoading, userSettings.autoCollapseToolCalls]);
 
-  let parsedContent: any;
+  let parsedContent: unknown;
   let isJsonContent = false;
 
   try {
@@ -257,7 +257,7 @@ export function ToolResult({
                             ? isExpanded
                               ? parsedContent
                               : parsedContent.slice(0, 5)
-                            : Object.entries(parsedContent)
+                            : Object.entries(parsedContent as Record<string, unknown>)
                           ).map((item, argIdx) => {
                             const [key, value] = Array.isArray(parsedContent)
                               ? [argIdx, item]

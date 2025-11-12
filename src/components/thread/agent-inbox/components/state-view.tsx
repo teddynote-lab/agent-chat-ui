@@ -228,7 +228,7 @@ export function StateViewObject(props: StateViewProps) {
 }
 
 interface StateViewComponentProps {
-  values: Record<string, any>;
+  values: Record<string, unknown>;
   description: string | undefined;
   handleShowSidePanel: (showState: boolean, showDescription: boolean) => void;
   view: "description" | "state";

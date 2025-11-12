@@ -1,6 +1,5 @@
 import React, {
   createContext,
-  useContext,
   ReactNode,
   useState,
   useEffect,
@@ -18,7 +17,7 @@ import {
 } from "@langchain/langgraph-sdk/react-ui";
 import { useQueryState } from "nuqs";
 import { getApiKey } from "@/lib/api-key";
-import { useThreads } from "./Thread";
+import { useThreads } from "@/hooks/useThreads";
 import { toast } from "sonner";
 import { AssistantConfigProvider } from "./AssistantConfig";
 import { normalizeApiUrl } from "./client";
@@ -38,7 +37,7 @@ const useTypedStream = useStream<
   }
 >;
 
-type StreamContextType = ReturnType<typeof useTypedStream>;
+export type StreamContextType = ReturnType<typeof useTypedStream>;
 const StreamContext = createContext<StreamContextType | undefined>(undefined);
 
 async function sleep(ms = TIMING.THREAD_FETCH_DELAY) {
@@ -95,7 +94,7 @@ const StreamSession = ({
 
   // Memoize callbacks to prevent infinite re-renders
   const handleCustomEvent = useCallback(
-    (event: any, options: any) => {
+    (event: unknown, options: { mutate: (fn: (prev: StateType) => StateType) => void }) => {
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
         options.mutate((prev: StateType) => {
           const ui = uiMessageReducer(prev.ui ?? [], event);
@@ -218,15 +217,6 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
       {children}
     </StreamSession>
   );
-};
-
-// Create a custom hook to use the context
-export const useStreamContext = (): StreamContextType => {
-  const context = useContext(StreamContext);
-  if (context === undefined) {
-    throw new Error("useStreamContext must be used within a StreamProvider");
-  }
-  return context;
 };
 
 export default StreamContext;

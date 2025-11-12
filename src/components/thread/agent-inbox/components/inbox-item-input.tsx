@@ -22,13 +22,13 @@ function ResetButton({ handleReset }: { handleReset: () => void }) {
   );
 }
 
-function ArgsRenderer({ args }: { args: Record<string, any> }) {
+function ArgsRenderer({ args }: { args: Record<string, unknown> }) {
   return (
     <div className="flex w-full flex-col items-start gap-6">
       {Object.entries(args).map(([k, v]) => {
         let value = "";
         if (["string", "number"].includes(typeof v)) {
-          value = v.toString();
+          value = String(v);
         } else {
           value = JSON.stringify(v, null);
         }
@@ -155,7 +155,7 @@ function AcceptComponent({
   handleSubmit,
 }: {
   streaming: boolean;
-  actionRequestArgs: Record<string, any>;
+  actionRequestArgs: Record<string, unknown>;
   handleSubmit: (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.KeyboardEvent,
   ) => Promise<void>;
@@ -236,7 +236,7 @@ function EditAndOrAcceptComponent({
     const keysToReset: string[] = [];
     const valuesToReset: string[] = [];
     Object.entries(initialValues).forEach(([k, v]) => {
-      if (k in (editResponse.args as Record<string, any>).args) {
+      if (k in (editResponse.args as { args: Record<string, unknown> }).args) {
         const value = ["string", "number"].includes(typeof v)
           ? v
           : JSON.stringify(v, null);

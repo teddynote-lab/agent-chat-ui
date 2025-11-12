@@ -18,8 +18,9 @@ async function loadServerChatOpeners(): Promise<string[] | undefined> {
     const data = yaml.load(contents) as { chatOpeners?: string[] };
     console.log("Server: chat-openers.yaml loaded successfully,", data.chatOpeners?.length, "items");
     return data.chatOpeners;
-  } catch (error: any) {
-    if (error?.code !== "ENOENT") {
+  } catch (error: unknown) {
+    const err = error as { code?: string };
+    if (err?.code !== "ENOENT") {
       console.warn("Server: Failed to load chat-openers.yaml:", error);
     }
     return undefined;
@@ -48,8 +49,9 @@ export async function loadServerConfig(): Promise<ChatConfig> {
       const parsed = yaml.load(contents) as Partial<ChatConfig>;
       config = mergeConfig(parsed);
       break;
-    } catch (error: any) {
-      if (error?.code !== "ENOENT") {
+    } catch (error: unknown) {
+      const err = error as { code?: string };
+      if (err?.code !== "ENOENT") {
         console.error(`Failed to load ${file}:`, error);
       }
       // Try the next file if the current one doesn't exist.

@@ -14,9 +14,9 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useSettings } from "@/providers/Settings";
-import { useAssistantConfig } from "@/providers/AssistantConfig";
-import { useThreads } from "@/providers/Thread";
+import { useSettings } from "@/hooks/useSettings";
+import { useAssistantConfig } from "@/hooks/useAssistantConfig";
+import { useThreads } from "@/hooks/useThreads";
 import { createClient } from "@/providers/client";
 import { getApiKey } from "@/lib/api-key";
 import { useState, useEffect, useRef } from "react";
@@ -34,7 +34,7 @@ export function SettingsDialog() {
   // Get API URL with environment variable fallback
   const envApiUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
   const apiUrl = apiUrlParam || envApiUrl;
-  const [configValues, setConfigValues] = useState<Record<string, any>>({});
+  const [configValues, setConfigValues] = useState<Record<string, unknown>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [connectionDialogOpen, setConnectionDialogOpen] = useState(false);
@@ -52,7 +52,7 @@ export function SettingsDialog() {
       isInitialized.current = true;
     } else if (schemas?.config_schema?.properties) {
       // Initialize with default values from schema
-      const defaults: Record<string, any> = {};
+      const defaults: Record<string, unknown> = {};
       Object.entries(schemas.config_schema.properties).forEach(([key, schema]) => {
         const schemaObj = schema as { default?: unknown };
         if (schemaObj.default !== undefined) {
@@ -375,29 +375,30 @@ export function SettingsDialog() {
             ) : schemas?.config_schema?.properties && Object.keys(schemas.config_schema.properties).length > 0 ? (
               <>
                 <div className="space-y-4 rounded-lg border p-4 max-h-[500px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent">
-                  {Object.entries(schemas.config_schema.properties).map(([key, schema]: [string, any]) => {
-                    const currentValue = configValues[key] ?? schema.default;
-                    const fieldType = schema.type;
+                  {Object.entries(schemas.config_schema.properties).map(([key, schema]: [string, unknown]) => {
+                    const schemaObj = schema as { default?: unknown; type?: string; title?: string; description?: string; enum?: unknown[] };
+                    const currentValue = configValues[key] ?? schemaObj.default;
+                    const fieldType = schemaObj.type;
 
                     return (
                       <div key={key} className="space-y-2">
                         <Label htmlFor={`config-${key}`}>
-                          {schema.title || key.split('_').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                          {schemaObj.title || key.split('_').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                         </Label>
-                        {schema.description && (
+                        {schemaObj.description && (
                           <p className="text-xs text-muted-foreground">
-                            {schema.description}
+                            {schemaObj.description}
                           </p>
                         )}
 
                         {fieldType === 'boolean' ? (
                           <div className="flex items-center justify-between">
                             <p className="text-sm text-muted-foreground">
-                              {schema.description || `Toggle ${schema.title || key}`}
+                              {schemaObj.description || `Toggle ${schemaObj.title || key}`}
                             </p>
                             <Switch
                               id={`config-${key}`}
-                              checked={currentValue ?? false}
+                              checked={Boolean(currentValue ?? false)}
                               onCheckedChange={(checked) =>
                                 handleConfigChange(key, checked)
                               }
@@ -407,18 +408,18 @@ export function SettingsDialog() {
                           <Input
                             id={`config-${key}`}
                             type="number"
-                            value={currentValue ?? ''}
+                            value={String(currentValue ?? '')}
                             onChange={(e) =>
                               handleConfigChange(key, fieldType === 'integer' ? parseInt(e.target.value) : parseFloat(e.target.value))
                             }
-                            placeholder={schema.default?.toString() || ''}
+                            placeholder={String(schemaObj.default ?? '')}
                           />
-                        ) : fieldType === 'string' && (currentValue?.length > 100 || schema.default?.length > 100) ? (
+                        ) : fieldType === 'string' && (typeof currentValue === 'string' && currentValue.length > 100 || (typeof schemaObj.default === 'string' && schemaObj.default.length > 100)) ? (
                           <Textarea
                             id={`config-${key}`}
-                            value={currentValue ?? ''}
+                            value={String(currentValue ?? '')}
                             onChange={(e) => handleConfigChange(key, e.target.value)}
-                            placeholder={schema.default || ''}
+                            placeholder={String(schemaObj.default ?? '')}
                             rows={6}
                             className="font-mono text-sm resize-y min-h-[100px] max-h-[300px]"
                           />
@@ -426,9 +427,9 @@ export function SettingsDialog() {
                           <Input
                             id={`config-${key}`}
                             type="text"
-                            value={currentValue ?? ''}
+                            value={String(currentValue ?? '')}
                             onChange={(e) => handleConfigChange(key, e.target.value)}
-                            placeholder={schema.default || ''}
+                            placeholder={String(schemaObj.default ?? '')}
                           />
                         )}
                       </div>

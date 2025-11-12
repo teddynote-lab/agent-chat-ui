@@ -2,11 +2,11 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-function isComplexValue(value: any): boolean {
+function isComplexValue(value: unknown): boolean {
   return Array.isArray(value) || (typeof value === "object" && value !== null);
 }
 
-function isUrl(value: any): boolean {
+function isUrl(value: unknown): boolean {
   if (typeof value !== "string") return false;
   try {
     new URL(value);
@@ -16,7 +16,7 @@ function isUrl(value: any): boolean {
   }
 }
 
-function renderInterruptStateItem(value: any): React.ReactNode {
+function renderInterruptStateItem(value: unknown): React.ReactNode {
   if (isComplexValue(value)) {
     return (
       <code className="rounded bg-gray-50 px-2 py-1 font-mono text-sm">
@@ -26,12 +26,12 @@ function renderInterruptStateItem(value: any): React.ReactNode {
   } else if (isUrl(value)) {
     return (
       <a
-        href={value}
+        href={value as string}
         target="_blank"
         rel="noopener noreferrer"
         className="break-all text-blue-600 underline hover:text-blue-800"
       >
-        {value}
+        {value as string}
       </a>
     );
   } else {
@@ -42,7 +42,7 @@ function renderInterruptStateItem(value: any): React.ReactNode {
 export function GenericInterruptView({
   interrupt,
 }: {
-  interrupt: Record<string, any> | Record<string, any>[];
+  interrupt: Record<string, unknown> | Record<string, unknown>[];
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -51,7 +51,7 @@ export function GenericInterruptView({
   const shouldTruncate = contentLines.length > 4 || contentStr.length > 500;
 
   // Function to truncate long string values (but preserve URLs)
-  const truncateValue = (value: any): any => {
+  const truncateValue = (value: unknown): unknown => {
     if (typeof value === "string" && value.length > 100) {
       // Don't truncate URLs so they remain clickable
       if (isUrl(value)) {
@@ -125,7 +125,7 @@ export function GenericInterruptView({
                   {displayEntries.map((item, argIdx) => {
                     const [key, value] = Array.isArray(interrupt)
                       ? [argIdx.toString(), item]
-                      : (item as [string, any]);
+                      : (item as [string, unknown]);
                     return (
                       <tr key={argIdx}>
                         <td className="px-4 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
