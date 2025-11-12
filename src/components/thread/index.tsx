@@ -52,6 +52,9 @@ import {
 import { SettingsDialog } from "../settings/SettingsDialog";
 import { useSettings } from "@/providers/Settings";
 import { FullDescriptionModal } from "./FullDescriptionModal";
+import { useAssistantConfig } from "@/providers/AssistantConfig";
+import { AssistantSelector } from "./AssistantSelector";
+import { ChatOpeners } from "./ChatOpeners";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -124,6 +127,7 @@ export function Thread() {
   const { config, userSettings } = useSettings();
 
   const [threadId, _setThreadId] = useQueryState("threadId");
+  const [assistantQueryId, setAssistantQueryId] = useQueryState("assistantId");
   const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
     "chatHistoryOpen",
     parseAsBoolean.withDefault(config.threads.sidebarOpenByDefault),
@@ -150,6 +154,12 @@ export function Thread() {
   const stream = useStreamContext();
   const messages = stream.messages;
   const isLoading = stream.isLoading;
+  const {
+    assistantId: activeAssistantId,
+    assistants,
+    assistantsLoading,
+    refetchAssistants,
+  } = useAssistantConfig();
 
   const lastError = useRef<string | undefined>(undefined);
 
@@ -159,6 +169,37 @@ export function Thread() {
     // close artifact and reset artifact context
     closeArtifact();
     setArtifactContext({});
+  };
+
+  const assistantSelectValue = assistantQueryId?.trim() || "none";
+
+  const isAssistantSelected = Boolean(assistantQueryId?.trim());
+
+  const handleAssistantChange = (value: string) => {
+    if (value === "none") {
+      if (assistantQueryId) {
+        void setAssistantQueryId(null);
+      }
+      setThreadId(null);
+      setInput("");
+      setContentBlocks([]);
+      setFirstTokenReceived(false);
+      return;
+    }
+
+    const trimmedValue = value.trim();
+    if (!trimmedValue || trimmedValue === assistantQueryId?.trim()) {
+      return;
+    }
+
+    void setAssistantQueryId(trimmedValue);
+    setThreadId(null);
+    setInput("");
+    setContentBlocks([]);
+    setFirstTokenReceived(false);
+    toast.success("그래프가 변경되었습니다.", {
+      description: `선택한 assistant ID: ${value}`,
+    });
   };
 
   useEffect(() => {
@@ -205,7 +246,11 @@ export function Thread() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if ((input.trim().length === 0 && contentBlocks.length === 0) || isLoading)
+    if (
+      (input.trim().length === 0 && contentBlocks.length === 0) ||
+      isLoading ||
+      !isAssistantSelected
+    )
       return;
     setFirstTokenReceived(false);
 
@@ -473,25 +518,17 @@ export function Thread() {
                         )}
                       </div>
                       {config.branding.chatOpeners && config.branding.chatOpeners.length > 0 && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-[calc(100%_-_8rem)]">
-                          {config.branding.chatOpeners.slice(0, 4).map((opener, index) => (
-                            <button
-                              key={index}
-                              onClick={() => {
-                                setInput(opener);
-                                setTimeout(() => {
-                                  const form = document.querySelector('form');
-                                  form?.requestSubmit();
-                                }, 0);
-                              }}
-                              className="group relative overflow-hidden rounded-xl border border-border bg-card hover:bg-accent hover:border-primary transition-all duration-200 p-4 text-left shadow-sm hover:shadow-md min-h-[4rem] flex items-center cursor-pointer"
-                            >
-                              <p className="text-sm text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                                {opener}
-                              </p>
-                            </button>
-                          ))}
-                        </div>
+                        <ChatOpeners
+                          disabled={isLoading || !isAssistantSelected}
+                          chatOpeners={config.branding.chatOpeners}
+                          onSelectOpener={(opener) => {
+                            setInput(opener);
+                            setTimeout(() => {
+                              const form = document.querySelector('form');
+                              form?.requestSubmit();
+                            }, 0);
+                          }}
+                        />
                       )}
                     </div>
                   )}
@@ -542,8 +579,9 @@ export function Thread() {
                         className="field-sizing-content resize-none border-none bg-transparent px-4 pt-4 pb-2 text-base leading-relaxed shadow-none ring-0 outline-none focus:ring-0 focus:outline-none placeholder:text-muted-foreground overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent"
                       />
 
+
                       <div className="flex items-center justify-between gap-2 px-3 pb-3">
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-2">
                           {config.buttons.enableFileUpload && (
                             <>
                               <TooltipProvider>
@@ -592,6 +630,24 @@ export function Thread() {
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
+
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                              <AssistantSelector
+                                assistants={assistants}
+                                selectedAssistantId={assistantSelectValue}
+                                isLoading={assistantsLoading}
+                                onSelect={handleAssistantChange}
+                                onRefresh={refetchAssistants}
+                              />
+                              </TooltipTrigger>
+                              <TooltipContent side="top">
+                                <p>{hideToolCalls ? "Show tool calls" : "Hide tool calls"}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+
                         </div>
                         {stream.isLoading ? (
                           <Button
@@ -610,7 +666,8 @@ export function Thread() {
                             className="h-8 w-8 rounded-lg"
                             disabled={
                               isLoading ||
-                              (!input.trim() && contentBlocks.length === 0)
+                              (!input.trim() && contentBlocks.length === 0) ||
+                              !isAssistantSelected
                             }
                           >
                             <ArrowUp className="h-4 w-4" />
