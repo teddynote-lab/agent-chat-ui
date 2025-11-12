@@ -10,7 +10,7 @@ export function ThreadListContainer({ children }: ThreadListContainerProps) {
   return (
     <div
       className={cn(
-        "flex h-full w-full flex-col items-stretch justify-start overflow-y-scroll",
+        "flex h-full w-full flex-col items-stretch justify-start overflow-y-scroll gap-2 p-3",
         SCROLLBAR_STYLES
       )}
     >
