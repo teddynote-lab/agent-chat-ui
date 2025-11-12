@@ -23,5 +23,5 @@ theme:
   colorScheme: "light"
 
 ui:
-  autoCollapseToolCalls: true
-  chatWidth: "wide"
+  autoCollapseToolCalls: false
+  chatWidth: "default"
