@@ -14,7 +14,7 @@ Agent Chat UI는 Next.js 15로 구축된 프로덕션 수준의 채팅 인터페
 
 ### 프론트엔드 (agent-chat-ui)
 - Node.js 18.x 이상
-- pnpm 10.x (패키지 매니저)
+- npm 9.x 이상 (패키지 매니저)
 
 ### 백엔드 (react-agent)
 - Python 3.11 이상
@@ -33,7 +33,7 @@ cd agent-chat-ui
 ### 2. 의존성 설치
 
 ```bash
-pnpm install
+npm install
 ```
 
 ### 3. LangGraph 백엔드 서버 설정
@@ -101,7 +101,7 @@ uv run langgraph dev
 
 ```bash
 cd agent-chat-ui
-pnpm dev
+npm run dev
 ```
 
 프론트엔드 애플리케이션이 `http://localhost:3000`에서 실행됩니다.
@@ -113,113 +113,201 @@ pnpm dev
 프로덕션 서버를 빌드하고 시작합니다:
 
 ```bash
-pnpm build
-pnpm start
+npm run build
+npm start
 ```
 
 ### 기타 명령어
 
 ```bash
 # 린터 실행
-pnpm lint
+npm run lint
 
 # 린팅 문제 자동 수정
-pnpm lint:fix
+npm run lint:fix
 
 # Prettier로 코드 포맷팅
-pnpm format
+npm run format
 
 # 코드 포맷 검사
-pnpm format:check
+npm run format:check
 ```
 
 ## 설정
 
 ### 설정 파일
 
-애플리케이션은 `public/settings.yaml` 파일을 통해 설정됩니다. 이 파일은 브랜딩부터 UI 동작까지 채팅 인터페이스의 모든 측면을 제어합니다.
+애플리케이션은 `public` 디렉토리의 YAML 파일들을 통해 설정됩니다. 이 파일들은 브랜딩부터 UI 동작까지 채팅 인터페이스의 모든 측면을 제어합니다.
+
+#### 주요 설정 파일
+
+1. **`public/chat-config.yaml`** - 채팅 인터페이스 전체 설정
+   - 브랜딩, 버튼, 도구, 메시지, 스레드, 테마, UI 동작 등을 제어
+
+2. **`public/chat-openers.yaml`** - 대화 시작 예시 질문
+   - 랜딩 페이지에 표시될 질문 목록 (최대 4개 권장)
 
 ### 설정 옵션
 
-#### Branding 섹션
+#### 📄 chat-config.yaml
+
+##### Branding 섹션
 
 | 옵션 | 타입 | 설명 | 예시 |
 |------|------|------|------|
-| `appName` | string | 헤더에 표시되는 애플리케이션 이름 | `"테디노트 챗"` |
+| `appName` | string | 헤더에 표시되는 애플리케이션 이름 | `"Agent Chat"` |
 | `logoPath` | string | public 디렉토리 내 로고 이미지 경로 | `"/logo.png"` |
-| `logoWidth` | number | 로고 너비(픽셀) | `28` |
-| `logoHeight` | number | 로고 높이(픽셀) | `28` |
-| `description` | string | 랜딩 페이지에 표시되는 부제목 | `"무엇이든 물어보세요"` |
-| `chatOpeners` | string[] | 대화 시작 프롬프트 (최대 4개) | `["오늘 날씨는?"]` |
-| `fullDescription` | string | 상세 가이드 마크다운 파일 경로 | `"/full-description.md"` |
+| `logoWidth` | number | 로고 너비(픽셀) | `32` |
+| `logoHeight` | number | 로고 높이(픽셀) | `32` |
 
-#### Buttons 섹션
+##### Buttons 섹션
 
 | 옵션 | 타입 | 설명 | 기본값 |
 |------|------|------|--------|
 | `enableFileUpload` | boolean | 파일 업로드 버튼 표시/숨김 | `true` |
-| `chatInputPlaceholder` | string | 입력 필드 플레이스홀더 텍스트 | `"메시지를 입력하세요..."` |
+| `fileUploadText` | string | 파일 업로드 버튼 텍스트 | `"Upload PDF or Image"` |
+| `submitButtonText` | string | 전송 버튼 텍스트 | `"Send"` |
+| `cancelButtonText` | string | 취소 버튼 텍스트 | `"Cancel"` |
 
-#### Threads 섹션
+##### Tools 섹션
 
 | 옵션 | 타입 | 설명 | 기본값 |
 |------|------|------|--------|
-| `showHistory` | boolean | 대화 기록 패널 활성화 | `false` |
+| `showToolCalls` | boolean | 기본적으로 도구 호출 표시 | `true` |
+| `displayMode` | string | `"detailed"` 또는 `"compact"` | `"detailed"` |
+| `enabledTools` | string[] | 활성화할 도구 목록 (비어있으면 모두 활성화) | `[]` |
+| `disabledTools` | string[] | 비활성화할 도구 목록 | `[]` |
+
+##### Messages 섹션
+
+| 옵션 | 타입 | 설명 | 기본값 |
+|------|------|------|--------|
+| `maxWidth` | number | 메시지 컨테이너 최대 너비(픽셀) | `768` |
+| `enableMarkdown` | boolean | 마크다운 렌더링 활성화 | `true` |
+| `enableMath` | boolean | LaTeX 수식 렌더링 활성화 | `true` |
+| `enableCodeHighlight` | boolean | 코드 구문 강조 활성화 | `true` |
+| `enableTables` | boolean | 테이블 렌더링 활성화 | `true` |
+
+##### Threads 섹션
+
+| 옵션 | 타입 | 설명 | 기본값 |
+|------|------|------|--------|
+| `showHistory` | boolean | 대화 기록 사이드바 표시 | `false` |
 | `enableDeletion` | boolean | 대화 삭제 기능 허용 | `true` |
 | `enableTitleEdit` | boolean | 대화 제목 변경 기능 허용 | `true` |
 | `autoGenerateTitles` | boolean | 대화 제목 자동 생성 | `true` |
-| `sidebarOpenByDefault` | boolean | 초기 로드 시 사이드바 열기 | `true` |
 
-#### Theme 섹션
+##### Theme 섹션
 
 | 옵션 | 타입 | 값 | 기본값 |
 |------|------|-----|--------|
-| `fontFamily` | string | `"sans"`, `"serif"`, `"mono"` | `"serif"` |
-| `fontSize` | string | `"small"`, `"medium"`, `"large"` | `"large"` |
+| `fontFamily` | string | `"sans"`, `"serif"`, `"mono"` | `"sans"` |
+| `fontSize` | string | `"small"`, `"medium"`, `"large"` | `"medium"` |
 | `colorScheme` | string | `"light"`, `"dark"`, `"auto"` | `"light"` |
 
-#### UI 섹션
+##### UI 섹션
 
 | 옵션 | 타입 | 설명 | 기본값 |
 |------|------|------|--------|
-| `autoCollapseToolCalls` | boolean | 완료 후 도구 호출 세부사항 자동 접기 | `true` |
-| `chatWidth` | string | `"default"` (768px) 또는 `"wide"` (1280px) | `"wide"` |
+| `autoCollapseToolCalls` | boolean | 완료 후 도구 호출 자동 접기 | `true` |
+| `chatWidth` | string | `"default"` (768px) 또는 `"wide"` (1280px) | `"default"` |
+
+##### Features 섹션
+
+| 옵션 | 타입 | 설명 | 기본값 |
+|------|------|------|--------|
+| `artifactViewer` | boolean | Artifact 뷰어 활성화 | `true` |
+| `fileUploads` | boolean | 파일 업로드 활성화 | `true` |
+| `imagePreview` | boolean | 이미지 미리보기 활성화 | `true` |
+| `pdfPreview` | boolean | PDF 미리보기 활성화 | `true` |
+
+#### 📄 chat-openers.yaml
+
+대화 시작 예시 질문 목록을 설정합니다. 랜딩 페이지에 버튼 형태로 표시됩니다.
+
+| 옵션 | 타입 | 설명 |
+|------|------|------|
+| `chatOpeners` | string[] | 예시 질문 목록 (최대 4개 권장) |
+
+**예시:**
+```yaml
+chatOpeners:
+  - "오늘의 날씨는 어때?"
+  - "AI 뉴스 검색해줘. 표로 정리해줘."
+  - "LLM 동작 원리가 궁금해."
+  - "에이전트가 뭐야?"
+```
 
 ### 설정 예시
 
+#### chat-config.yaml 예시
+
 ```yaml
+# Application branding
 branding:
   appName: "테디노트 챗"
   logoPath: "/logo.png"
-  logoWidth: 28
-  logoHeight: 28
-  description: "AI와 기술에 대해 무엇이든 물어보세요."
-  chatOpeners:
-    - "오늘의 날씨는 어때?"
-    - "AI 뉴스 검색해줘. 표로 정리해줘."
-    - "LLM 동작 원리가 궁금해."
-    - "에이전트가 뭐야?"
-  fullDescription: "/full-description.md"
+  logoWidth: 32
+  logoHeight: 32
 
+# Chat interface buttons
 buttons:
   enableFileUpload: true
-  chatInputPlaceholder: "무엇이든 물어보세요..."
+  fileUploadText: "PDF 또는 이미지 업로드"
+  submitButtonText: "전송"
+  cancelButtonText: "취소"
 
+# Tool display settings
+tools:
+  showToolCalls: true
+  displayMode: "detailed"
+  enabledTools: []
+  disabledTools: []
+
+# Message display settings
+messages:
+  maxWidth: 768
+  enableMarkdown: true
+  enableMath: true
+  enableCodeHighlight: true
+  enableTables: true
+
+# Thread/Conversation settings
 threads:
   showHistory: false
   enableDeletion: true
   enableTitleEdit: true
   autoGenerateTitles: true
-  sidebarOpenByDefault: true
 
+# UI Theme settings
 theme:
-  fontFamily: "serif"
-  fontSize: "large"
+  fontFamily: "sans"
+  fontSize: "medium"
   colorScheme: "light"
 
+# UI Behavior settings
 ui:
   autoCollapseToolCalls: true
-  chatWidth: "wide"
+  chatWidth: "default"
+
+# Feature flags
+features:
+  artifactViewer: true
+  fileUploads: true
+  imagePreview: true
+  pdfPreview: true
+```
+
+#### chat-openers.yaml 예시
+
+```yaml
+chatOpeners:
+  - "오늘의 날씨는 어때?"
+  - "AI 뉴스 검색해줘. 표로 정리해줘."
+  - "LLM 동작 원리가 궁금해."
+  - "에이전트가 뭐야?"
+  - "노트를 찾아줘."
+  - "LangGraph에 대해 알려줘."
 ```
 
 ## 사용자 가이드 커스터마이징
@@ -278,7 +366,7 @@ LANGSMITH_API_KEY=lsv2_...
 ### 프로덕션 빌드
 
 ```bash
-pnpm build
+npm run build
 ```
 
 이 명령은 `.next` 디렉토리에 최적화된 프로덕션 빌드를 생성합니다.
@@ -330,7 +418,7 @@ pnpm build
 ### 일반적인 문제
 
 **문제**: 프론트엔드 애플리케이션이 시작되지 않음
-**해결**: Node.js 버전(18+)을 확인하고 `pnpm install`을 다시 실행하세요
+**해결**: Node.js 버전(18+)을 확인하고 `npm install`을 다시 실행하세요
 
 **문제**: LangGraph 백엔드 서버에 연결할 수 없음
 **해결**:
@@ -345,10 +433,20 @@ pnpm build
 - `uv sync` 명령어로 의존성을 다시 설치하세요
 
 **문제**: 파일 업로드가 작동하지 않음
-**해결**: `public/settings.yaml`에서 `enableFileUpload: true`로 설정되어 있는지 확인하세요
+**해결**:
+- `public/chat-config.yaml`에서 `buttons.enableFileUpload: true` 또는 `features.fileUploads: true`로 설정되어 있는지 확인하세요
+- 설정 변경 후 브라우저를 강력 새로고침하세요
+
+**문제**: 대화 시작 예시가 표시되지 않음
+**해결**:
+- `public/chat-openers.yaml` 파일이 존재하는지 확인하세요
+- `chatOpeners` 배열에 최소 1개 이상의 질문이 있는지 확인하세요
+- 브라우저를 강력 새로고침하세요
 
 **문제**: 설정 변경사항이 반영되지 않음
-**해결**: 브라우저를 강력 새로고침(Ctrl+Shift+R / Cmd+Shift+R)하여 캐시를 지우세요
+**해결**:
+- `public/chat-config.yaml` 또는 `public/chat-openers.yaml` 파일을 수정한 후 브라우저를 강력 새로고침(Ctrl+Shift+R / Cmd+Shift+R)하여 캐시를 지우세요
+- 개발 서버를 재시작해보세요: `npm run dev`
 
 ## 라이선스
 

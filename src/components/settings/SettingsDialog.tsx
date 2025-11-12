@@ -28,8 +28,12 @@ export function SettingsDialog() {
   const { userSettings, updateUserSettings, resetUserSettings } = useSettings();
   const { config, schemas, assistantId, isLoading, error: _error, updateConfig, refetchConfig } = useAssistantConfig();
   const { threads, getThreads, setThreads } = useThreads();
-  const [apiUrl] = useQueryState("apiUrl");
+  const [apiUrlParam] = useQueryState("apiUrl");
   const [threadId, setThreadId] = useQueryState("threadId");
+
+  // Get API URL with environment variable fallback
+  const envApiUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
+  const apiUrl = apiUrlParam || envApiUrl;
   const [configValues, setConfigValues] = useState<Record<string, any>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
