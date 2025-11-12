@@ -19,7 +19,7 @@ export default function ThreadHistory({ onShowGuide }: ThreadHistoryProps) {
     "chatHistoryOpen",
     parseAsBoolean.withDefault(config.threads.sidebarOpenByDefault),
   );
-  const [threadId, setThreadId] = useQueryState("threadId");
+  const [_threadId, setThreadId] = useQueryState("threadId");
   const [apiUrl] = useQueryState("apiUrl");
   const [assistantId] = useQueryState("assistantId");
   const envApiUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;

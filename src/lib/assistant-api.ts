@@ -1,6 +1,18 @@
 import { createClient } from "@/providers/client";
 
 /**
+ * UUID validation regex pattern
+ */
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Check if a string is a valid UUID
+ */
+export function isValidUUID(str: string): boolean {
+  return UUID_REGEX.test(str);
+}
+
+/**
  * Valid fields for assistant selection
  * Based on @langchain/langgraph-sdk's assistant schema
  */
@@ -57,6 +69,12 @@ export async function getAssistant(
 ): Promise<Assistant | null> {
   if (!assistantId) {
     console.warn("Assistant ID is missing, skipping assistant API call");
+    return null;
+  }
+
+  // Skip API call for non-UUID strings (like "agent")
+  if (!isValidUUID(assistantId)) {
+    console.info(`"${assistantId}" is not a UUID, skipping direct lookup`);
     return null;
   }
 

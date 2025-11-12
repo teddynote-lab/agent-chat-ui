@@ -12,6 +12,7 @@ import {
   searchAssistants,
   getAssistantSchemas,
   updateAssistantConfig,
+  isValidUUID,
   type AssistantConfig as AssistantConfigType,
   type AssistantSchemas,
   type Assistant,
@@ -76,20 +77,43 @@ export const AssistantConfigProvider: React.FC<{
   }, [apiUrl, apiKey]);
 
   const fetchConfig = useCallback(async () => {
+    console.log("[AssistantConfig] fetchConfig called with:", {
+      apiUrl,
+      initialAssistantId,
+      apiKey: apiKey ? `${apiKey.substring(0, 10)}...` : "none",
+    });
+
     setIsLoading(true);
     setError(null);
 
+    // Early return if no assistant ID provided
+    if (!initialAssistantId || initialAssistantId.trim() === "") {
+      console.warn("[AssistantConfig] No assistant ID provided");
+      setIsLoading(false);
+      setError("No assistant ID provided");
+      return;
+    }
+
     try {
       let actualAssistantId = initialAssistantId;
-      let assistant = await getAssistant(
-        apiUrl,
-        actualAssistantId,
-        apiKey || undefined
-      );
+      let assistant: Assistant | null = null;
 
+      console.log("[AssistantConfig] Checking if UUID:", initialAssistantId);
+      // If it's a valid UUID, try direct lookup first
+      if (isValidUUID(initialAssistantId)) {
+        console.log("[AssistantConfig] Valid UUID, trying direct lookup");
+
+        assistant = await getAssistant(
+          apiUrl,
+          actualAssistantId,
+          apiKey || undefined
+        );
+      }
+
+      // If not found or not a UUID, search by graph_id
       if (!assistant) {
-        console.info(
-          `Assistant "${initialAssistantId}" not found directly, searching by graph_id`
+        console.log(
+          `[AssistantConfig] Not a UUID or not found, searching by graph_id: "${initialAssistantId}"`
         );
         const assistants = await searchAssistants(
           apiUrl,
@@ -103,23 +127,27 @@ export const AssistantConfigProvider: React.FC<{
           apiKey || undefined
         );
 
+        console.log(`[AssistantConfig] Search results:`, assistants);
+
         if (assistants.length > 0) {
           actualAssistantId = assistants[0].assistant_id;
-          console.info(
-            `Resolved graph_id "${initialAssistantId}" to assistant ID: ${actualAssistantId}`
+          console.log(
+            `[AssistantConfig] ✅ Resolved graph_id "${initialAssistantId}" to assistant ID: ${actualAssistantId}`
           );
           assistant = await getAssistant(
             apiUrl,
             actualAssistantId,
             apiKey || undefined
           );
+          console.log(`[AssistantConfig] Assistant details:`, assistant);
         } else {
           const message = `No assistant found for graph_id: ${initialAssistantId}`;
-          console.warn(message);
+          console.error(`[AssistantConfig] ❌ ${message}`);
           setError(message);
           setConfig(null);
           setSchemas(null);
           setAssistantId(null);
+          setIsLoading(false);
           return;
         }
       }

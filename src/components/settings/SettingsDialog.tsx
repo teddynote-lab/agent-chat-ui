@@ -1,6 +1,6 @@
 "use client";
 
-import { Settings as SettingsIcon, X, RefreshCw, Trash2, Plus } from "lucide-react";
+import { Settings as SettingsIcon, RefreshCw, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,7 +26,7 @@ import { ConnectionDialog } from "./ConnectionDialog";
 
 export function SettingsDialog() {
   const { userSettings, updateUserSettings, resetUserSettings } = useSettings();
-  const { config, schemas, assistantId, isLoading, error, updateConfig, refetchConfig } = useAssistantConfig();
+  const { config, schemas, assistantId, isLoading, error: _error, updateConfig, refetchConfig } = useAssistantConfig();
   const { threads, getThreads, setThreads } = useThreads();
   const [apiUrl] = useQueryState("apiUrl");
   const [threadId, setThreadId] = useQueryState("threadId");
@@ -76,7 +76,7 @@ export function SettingsDialog() {
       } else {
         toast.error("Failed to update configuration");
       }
-    } catch (err) {
+    } catch {
       toast.error("Error updating configuration");
     } finally {
       setIsSaving(false);

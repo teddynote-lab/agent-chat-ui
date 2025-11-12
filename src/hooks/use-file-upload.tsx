@@ -1,9 +1,6 @@
 import { useState, useRef, useEffect, ChangeEvent } from "react";
 import type { Base64ContentBlock } from "@langchain/core/messages";
-import {
-  SUPPORTED_FILE_TYPES,
-  processFiles,
-} from "@/lib/file-validation";
+import { processFiles } from "@/lib/file-validation";
 
 interface UseFileUploadOptions {
   initialBlocks?: Base64ContentBlock[];

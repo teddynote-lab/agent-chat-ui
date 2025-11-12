@@ -46,7 +46,6 @@ function ToolCallItem({
   const args = toolCall.args as Record<string, unknown>;
   const hasArgs = Object.keys(args).length > 0;
   const argEntries = Object.entries(args);
-  const shouldShowExpander = argEntries.length > 3;
 
   return (
     <div className="overflow-hidden rounded-xl border border-border/50 dark:border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md hover:border-border dark:hover:border-border/80">

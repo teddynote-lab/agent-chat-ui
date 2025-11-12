@@ -17,12 +17,6 @@ import {
   type RemoveUIMessage,
 } from "@langchain/langgraph-sdk/react-ui";
 import { useQueryState } from "nuqs";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { LangGraphLogoSVG } from "@/components/icons/langgraph";
-import { Label } from "@/components/ui/label";
-import { ArrowRight } from "lucide-react";
-import { PasswordInput } from "@/components/ui/password-input";
 import { getApiKey } from "@/lib/api-key";
 import { useThreads } from "./Thread";
 import { toast } from "sonner";
@@ -55,8 +49,19 @@ async function checkGraphStatus(
   apiUrl: string,
   apiKey: string | null,
 ): Promise<boolean> {
+  console.log("[checkGraphStatus] Checking connection to:", apiUrl);
+  console.log("[checkGraphStatus] API Key:", apiKey ? `${apiKey.substring(0, 10)}...` : "none");
+
+  if (!apiUrl || apiUrl.trim() === "") {
+    console.error("[checkGraphStatus] ❌ API URL is empty");
+    return false;
+  }
+
   try {
-    const res = await fetch(`${apiUrl}/info`, {
+    const url = `${apiUrl}/info`;
+    console.log("[checkGraphStatus] Fetching:", url);
+
+    const res = await fetch(url, {
       ...(apiKey && {
         headers: {
           "X-Api-Key": apiKey,
@@ -64,9 +69,12 @@ async function checkGraphStatus(
       }),
     });
 
-    return res.ok;
+    console.log("[checkGraphStatus] Response status:", res.status, res.statusText);
+    const isOk = res.ok;
+    console.log(`[checkGraphStatus] ${isOk ? "✅" : "❌"} Connection ${isOk ? "successful" : "failed"}`);
+    return isOk;
   } catch (e) {
-    console.error(e);
+    console.error("[checkGraphStatus] ❌ Error:", e);
     return false;
   }
 }
@@ -149,41 +157,57 @@ const StreamSession = ({
   );
 };
 
-// Default values for the form
-const DEFAULT_API_URL = "http://localhost:2024";
-
 export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   // Get environment variables
   const envApiUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
+  const envAssistantId: string | undefined = process.env.NEXT_PUBLIC_ASSISTANT_ID;
+  const envApiKey: string | undefined = process.env.NEXT_PUBLIC_LANGCHAIN_API_KEY;
+
   // Use URL params with env var fallbacks
-  const [apiUrl, setApiUrl] = useQueryState("apiUrl", {
+  const [apiUrl, _setApiUrl] = useQueryState("apiUrl", {
     defaultValue: envApiUrl || "",
   });
-  const [assistantId, setAssistantId] = useQueryState("assistantId", {
-    defaultValue: "",
+  const [assistantId, _setAssistantId] = useQueryState("assistantId", {
+    defaultValue: envAssistantId || "",
   });
 
   // For API key, use localStorage with env var fallback
   const [apiKey, _setApiKey] = useState(() => {
     const storedKey = getApiKey();
-    return storedKey || "";
+    // If no stored key but env var exists, use and save the env var
+    if (!storedKey && envApiKey && typeof window !== "undefined") {
+      window.localStorage.setItem("lg:chat:apiKey", envApiKey);
+      return envApiKey;
+    }
+    return storedKey || envApiKey || "";
   });
 
-  const setApiKey = (key: string) => {
+  const _setApiKeyWrapper = (key: string) => {
     window.localStorage.setItem("lg:chat:apiKey", key);
     _setApiKey(key);
   };
 
   // Determine final values to use, prioritizing URL params then env vars
   const finalApiUrl = apiUrl || envApiUrl;
-  const finalAssistantId = assistantId?.trim() || "";
+  const finalAssistantId = assistantId?.trim() || envAssistantId || "";
   const resolvedApiUrl = useMemo(
     () => normalizeApiUrl(finalApiUrl),
     [finalApiUrl]
   );
 
+  // Log connection parameters
+  console.log("[StreamProvider] Connection parameters:", {
+    apiUrl,
+    envApiUrl,
+    finalApiUrl,
+    resolvedApiUrl,
+    assistantId,
+    envAssistantId,
+    finalAssistantId,
+    apiKey: apiKey ? `${apiKey.substring(0, 10)}...` : "none",
+  });
 
   return (
     <StreamSession

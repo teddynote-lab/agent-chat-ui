@@ -62,7 +62,6 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
 }) => {
   const initial = initialConfig ?? defaultConfig;
   const [config, setConfig] = useState<ChatConfig>(initial);
-  const [isHydrated, setIsHydrated] = useState(false);
   const [userSettings, setUserSettings] = useState<UserSettings>({
     fontFamily: initial.theme.fontFamily,
     fontSize: initial.theme.fontSize,
@@ -88,7 +87,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
         stored.autoCollapseToolCalls ?? initial.ui.autoCollapseToolCalls,
       chatWidth: stored.chatWidth || initial.ui.chatWidth,
     });
-    setIsHydrated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Apply theme settings to document

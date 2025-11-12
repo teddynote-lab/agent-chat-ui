@@ -13,14 +13,11 @@ import {
   DO_NOT_RENDER_ID_PREFIX,
   ensureToolCallsHaveResponses,
 } from "@/lib/ensure-tool-responses";
-import { LangGraphLogoSVG } from "../icons/langgraph";
-import { TooltipIconButton } from "./tooltip-icon-button";
 import {
   ArrowDown,
   LoaderCircle,
   PanelRightOpen,
   PanelRightClose,
-  SquarePen,
   XIcon,
   Paperclip,
   Wrench,
@@ -33,7 +30,6 @@ import ThreadHistory from "./history";
 import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Label } from "../ui/label";
-import { Switch } from "../ui/switch";
 import { GitHubSVG } from "../icons/github";
 import {
   Tooltip,
@@ -49,7 +45,6 @@ import {
   ArtifactTitle,
   useArtifactContext,
 } from "./artifact";
-import { SettingsDialog } from "../settings/SettingsDialog";
 import { useSettings } from "@/providers/Settings";
 import { FullDescriptionModal } from "./FullDescriptionModal";
 import { useAssistantConfig } from "@/providers/AssistantConfig";
@@ -155,7 +150,7 @@ export function Thread() {
   const messages = stream.messages;
   const isLoading = stream.isLoading;
   const {
-    assistantId: activeAssistantId,
+    assistantId: _activeAssistantId,
     assistants,
     assistantsLoading,
     refetchAssistants,
