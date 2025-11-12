@@ -16,7 +16,7 @@ interface ClientAppProps {
 
 export default function ClientApp({ initialConfig }: ClientAppProps) {
   return (
-    <React.Suspense fallback={<div>Loading (layout)...</div>}>
+    <React.Suspense fallback={<div></div>}>
       <Toaster />
       <SettingsProvider initialConfig={initialConfig}>
         <ThreadProvider>
