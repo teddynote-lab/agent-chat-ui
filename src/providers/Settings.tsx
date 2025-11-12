@@ -9,7 +9,7 @@ import { ChatConfig, defaultConfig, loadConfig } from "@/lib/config";
 
 // User settings that can be customized in the UI
 export interface UserSettings {
-  fontFamily: "sans" | "serif" | "mono";
+  fontFamily: "sans" | "serif" | "mono" | "pretendard";
   fontSize: "small" | "medium" | "large";
   colorScheme: "light" | "dark" | "auto";
   autoCollapseToolCalls: boolean;
@@ -51,33 +51,42 @@ function saveUserSettings(settings: UserSettings) {
   }
 }
 
-export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
+interface SettingsProviderProps {
+  children: ReactNode;
+  initialConfig?: ChatConfig;
+}
+
+export const SettingsProvider: React.FC<SettingsProviderProps> = ({
   children,
+  initialConfig,
 }) => {
-  const [config, setConfig] = useState<ChatConfig>(defaultConfig);
+  const initial = initialConfig ?? defaultConfig;
+  const [config, setConfig] = useState<ChatConfig>(initial);
   const [isHydrated, setIsHydrated] = useState(false);
   const [userSettings, setUserSettings] = useState<UserSettings>({
-    fontFamily: defaultConfig.theme.fontFamily,
-    fontSize: defaultConfig.theme.fontSize,
-    colorScheme: defaultConfig.theme.colorScheme,
-    autoCollapseToolCalls: defaultConfig.ui.autoCollapseToolCalls,
-    chatWidth: defaultConfig.ui.chatWidth,
+    fontFamily: initial.theme.fontFamily,
+    fontSize: initial.theme.fontSize,
+    colorScheme: initial.theme.colorScheme,
+    autoCollapseToolCalls: initial.ui.autoCollapseToolCalls,
+    chatWidth: initial.ui.chatWidth,
   });
 
   // Load config on mount
   useEffect(() => {
+    if (initialConfig) return;
     loadConfig().then(setConfig);
-  }, []);
+  }, [initialConfig]);
 
   // Load user settings from localStorage after hydration
   useEffect(() => {
     const stored = loadUserSettings();
     setUserSettings({
-      fontFamily: stored.fontFamily || defaultConfig.theme.fontFamily,
-      fontSize: stored.fontSize || defaultConfig.theme.fontSize,
-      colorScheme: stored.colorScheme || defaultConfig.theme.colorScheme,
-      autoCollapseToolCalls: stored.autoCollapseToolCalls ?? defaultConfig.ui.autoCollapseToolCalls,
-      chatWidth: stored.chatWidth || defaultConfig.ui.chatWidth,
+      fontFamily: stored.fontFamily || initial.theme.fontFamily,
+      fontSize: stored.fontSize || initial.theme.fontSize,
+      colorScheme: stored.colorScheme || initial.theme.colorScheme,
+      autoCollapseToolCalls:
+        stored.autoCollapseToolCalls ?? initial.ui.autoCollapseToolCalls,
+      chatWidth: stored.chatWidth || initial.ui.chatWidth,
     });
     setIsHydrated(true);
   }, []);
@@ -91,6 +100,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
       sans: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
       serif: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif",
       mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+      pretendard: "'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif",
     };
     root.style.setProperty("--font-family", fontFamilyMap[userSettings.fontFamily]);
 

@@ -1,12 +1,5 @@
 import { createClient } from "@/providers/client";
 
-// UUID validation regex
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-export function isValidUUID(str: string): boolean {
-  return UUID_REGEX.test(str);
-}
-
 /**
  * Valid fields for assistant selection
  * Based on @langchain/langgraph-sdk's assistant schema
@@ -62,9 +55,8 @@ export async function getAssistant(
   assistantId: string,
   apiKey?: string
 ): Promise<Assistant | null> {
-  // Validate UUID format
-  if (!isValidUUID(assistantId)) {
-    console.info(`Assistant ID "${assistantId}" is not a UUID, skipping assistant API call`);
+  if (!assistantId) {
+    console.warn("Assistant ID is missing, skipping assistant API call");
     return null;
   }
 
@@ -73,7 +65,7 @@ export async function getAssistant(
     const assistant = await client.assistants.get(assistantId);
     return assistant as Assistant;
   } catch (error) {
-    console.error("Failed to fetch assistant:", error);
+    console.error(`Failed to fetch assistant "${assistantId}":`, error);
     return null;
   }
 }
@@ -98,9 +90,8 @@ export async function getAssistantSchemas(
   assistantId: string,
   apiKey?: string
 ): Promise<AssistantSchemas | null> {
-  // Validate UUID format
-  if (!isValidUUID(assistantId)) {
-    console.info(`Assistant ID "${assistantId}" is not a UUID, skipping schemas API call`);
+  if (!assistantId) {
+    console.warn("Assistant ID is missing, skipping schemas API call");
     return null;
   }
 
@@ -109,7 +100,7 @@ export async function getAssistantSchemas(
     const schemas = await client.assistants.getSchemas(assistantId);
     return schemas as AssistantSchemas;
   } catch (error) {
-    console.error("Failed to fetch assistant schemas:", error);
+    console.error(`Failed to fetch assistant schemas for "${assistantId}":`, error);
     return null;
   }
 }
@@ -120,9 +111,8 @@ export async function updateAssistantConfig(
   config: AssistantConfig,
   apiKey?: string
 ): Promise<Assistant | null> {
-  // Validate UUID format
-  if (!isValidUUID(assistantId)) {
-    console.error(`Cannot update assistant config: "${assistantId}" is not a valid UUID`);
+  if (!assistantId) {
+    console.error("Cannot update assistant config: assistant ID is missing");
     return null;
   }
 
@@ -133,7 +123,7 @@ export async function updateAssistantConfig(
     });
     return assistant as Assistant;
   } catch (error) {
-    console.error("Failed to update assistant config:", error);
+    console.error(`Failed to update assistant config for "${assistantId}":`, error);
     return null;
   }
 }

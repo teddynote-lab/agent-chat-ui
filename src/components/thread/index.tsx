@@ -52,6 +52,9 @@ import {
 import { SettingsDialog } from "../settings/SettingsDialog";
 import { useSettings } from "@/providers/Settings";
 import { FullDescriptionModal } from "./FullDescriptionModal";
+import { useAssistantConfig } from "@/providers/AssistantConfig";
+import { AssistantSelector } from "./AssistantSelector";
+import { ChatOpeners } from "./ChatOpeners";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -102,7 +105,7 @@ function OpenGitHubRepo() {
           <a
             href="https://github.com/teddylee777/agent-chat-ui"
             target="_blank"
-            className="flex items-center justify-center"
+            className="flex items-center justify-center pr-3 h-9"
           >
             <GitHubSVG
               width="24"
@@ -124,6 +127,7 @@ export function Thread() {
   const { config, userSettings } = useSettings();
 
   const [threadId, _setThreadId] = useQueryState("threadId");
+  const [assistantQueryId, setAssistantQueryId] = useQueryState("assistantId");
   const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
     "chatHistoryOpen",
     parseAsBoolean.withDefault(config.threads.sidebarOpenByDefault),
@@ -150,6 +154,12 @@ export function Thread() {
   const stream = useStreamContext();
   const messages = stream.messages;
   const isLoading = stream.isLoading;
+  const {
+    assistantId: activeAssistantId,
+    assistants,
+    assistantsLoading,
+    refetchAssistants,
+  } = useAssistantConfig();
 
   const lastError = useRef<string | undefined>(undefined);
 
@@ -159,6 +169,37 @@ export function Thread() {
     // close artifact and reset artifact context
     closeArtifact();
     setArtifactContext({});
+  };
+
+  const assistantSelectValue = assistantQueryId?.trim() || "none";
+
+  const isAssistantSelected = Boolean(assistantQueryId?.trim());
+
+  const handleAssistantChange = (value: string) => {
+    if (value === "none") {
+      if (assistantQueryId) {
+        void setAssistantQueryId(null);
+      }
+      setThreadId(null);
+      setInput("");
+      setContentBlocks([]);
+      setFirstTokenReceived(false);
+      return;
+    }
+
+    const trimmedValue = value.trim();
+    if (!trimmedValue || trimmedValue === assistantQueryId?.trim()) {
+      return;
+    }
+
+    void setAssistantQueryId(trimmedValue);
+    setThreadId(null);
+    setInput("");
+    setContentBlocks([]);
+    setFirstTokenReceived(false);
+    toast.success("그래프가 변경되었습니다.", {
+      description: `선택한 assistant ID: ${value}`,
+    });
   };
 
   useEffect(() => {
@@ -205,7 +246,14 @@ export function Thread() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if ((input.trim().length === 0 && contentBlocks.length === 0) || isLoading)
+    if (!isAssistantSelected) {
+      toast.error("그래프를 먼저 선택해주세요.");
+      return;
+    }
+    if (
+      (input.trim().length === 0 && contentBlocks.length === 0) ||
+      isLoading
+    )
       return;
     setFirstTokenReceived(false);
 
@@ -290,9 +338,6 @@ export function Thread() {
               <div className="flex-1 overflow-hidden">
                 <ThreadHistory onShowGuide={() => setFullDescriptionOpen(true)} />
               </div>
-              <div className="border-t border-border p-4">
-                <SettingsDialog />
-              </div>
             </div>
           </motion.div>
         </div>
@@ -325,11 +370,11 @@ export function Thread() {
           }
         >
           {!chatStarted && (
-            <div className="absolute top-0 left-0 z-10 flex w-full items-center justify-between gap-3 p-2 pl-4">
+            <div className="absolute top-0 left-0 z-10 flex w-full items-center justify-between gap-3 p-4">
               <div>
                 {config.threads.showHistory && (!chatHistoryOpen || !isLargeScreen) && (
                   <Button
-                    className="hover:bg-accent"
+                    className="hover:bg-accent cursor-pointer"
                     variant="ghost"
                     onClick={() => setChatHistoryOpen((p) => !p)}
                   >
@@ -341,13 +386,11 @@ export function Thread() {
                   </Button>
                 )}
               </div>
-              <div className="absolute top-2 right-4 flex items-center">
-                <OpenGitHubRepo />
-              </div>
+              <OpenGitHubRepo />
             </div>
           )}
           {chatStarted && (
-            <div className="relative z-10 flex items-center justify-between gap-3 p-2">
+            <div className="absolute top-0 left-0 z-10 w-full flex items-center justify-between gap-3 p-4">
               <div className="relative flex items-center justify-start gap-2">
                 <div className="absolute left-0 z-10">
                   {config.threads.showHistory && (!chatHistoryOpen || !isLargeScreen) && (
@@ -365,10 +408,10 @@ export function Thread() {
                   )}
                 </div>
                 <motion.button
-                  className="flex cursor-pointer items-center gap-2"
+                  className="flex cursor-pointer items-center gap-2 ml-2"
                   onClick={() => setThreadId(null)}
                   animate={{
-                    marginLeft: config.threads.showHistory && !chatHistoryOpen ? 48 : 0,
+                    translateX: config.threads.showHistory && !chatHistoryOpen ? 48 : 0,
                   }}
                   transition={{
                     type: "spring",
@@ -388,26 +431,22 @@ export function Thread() {
                 </motion.button>
               </div>
 
-              <div className="flex items-center gap-2">
-                <div className="flex items-center">
-                  <OpenGitHubRepo />
-                </div>
-              </div>
+              <OpenGitHubRepo />
 
               <div className="from-background to-background/0 absolute inset-x-0 top-full h-5 bg-gradient-to-b" />
             </div>
           )}
 
-          <StickToBottom className="relative flex-1 overflow-hidden">
+          <StickToBottom className="relative mt-[68px] flex-1 overflow-hidden">
             <StickyToBottomContent
               className={cn(
                 "absolute inset-0 overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent",
-                !chatStarted && "mt-[25vh] flex flex-col items-stretch",
+                !chatStarted && "mt-0 flex flex-col items-stretch justify-center",
                 chatStarted && "grid grid-rows-[1fr_auto]",
                 userSettings.chatWidth === "default" ? "px-4" : "px-2",
               )}
               contentClassName={cn(
-                "pt-8 pb-16 mx-auto flex flex-col gap-6 w-full",
+                messages.length > 0 ? "pt-8 pb-16 mx-auto flex flex-col gap-6 w-full" : "",
                 userSettings.chatWidth === "default" ? "max-w-3xl" : "max-w-5xl"
               )}
               content={
@@ -446,7 +485,7 @@ export function Thread() {
                 </>
               }
               footer={
-                <div className="sticky bottom-0 flex flex-col items-center gap-20 bg-background">
+                <div className="sticky bottom-0 flex flex-col items-center gap-10 bg-none">
                   {!chatStarted && (
                     <div className={cn(
                       "flex flex-col items-center gap-6 w-full mx-auto",
@@ -481,25 +520,17 @@ export function Thread() {
                         )}
                       </div>
                       {config.branding.chatOpeners && config.branding.chatOpeners.length > 0 && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-                          {config.branding.chatOpeners.slice(0, 4).map((opener, index) => (
-                            <button
-                              key={index}
-                              onClick={() => {
-                                setInput(opener);
-                                setTimeout(() => {
-                                  const form = document.querySelector('form');
-                                  form?.requestSubmit();
-                                }, 0);
-                              }}
-                              className="group relative overflow-hidden rounded-xl border border-border bg-card hover:bg-accent hover:border-primary transition-all duration-200 p-4 text-left shadow-sm hover:shadow-md min-h-[3.5rem] flex items-center"
-                            >
-                              <p className="text-sm text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                                {opener}
-                              </p>
-                            </button>
-                          ))}
-                        </div>
+                        <ChatOpeners
+                          disabled={isLoading || !isAssistantSelected}
+                          chatOpeners={config.branding.chatOpeners}
+                          onSelectOpener={(opener) => {
+                            setInput(opener);
+                            setTimeout(() => {
+                              const form = document.querySelector('form');
+                              form?.requestSubmit();
+                            }, 0);
+                          }}
+                        />
                       )}
                     </div>
                   )}
@@ -550,8 +581,9 @@ export function Thread() {
                         className="field-sizing-content resize-none border-none bg-transparent px-4 pt-4 pb-2 text-base leading-relaxed shadow-none ring-0 outline-none focus:ring-0 focus:outline-none placeholder:text-muted-foreground overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent"
                       />
 
+
                       <div className="flex items-center justify-between gap-2 px-3 pb-3">
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-2">
                           {config.buttons.enableFileUpload && (
                             <>
                               <TooltipProvider>
@@ -600,6 +632,24 @@ export function Thread() {
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
+
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                              <AssistantSelector
+                                assistants={assistants}
+                                selectedAssistantId={assistantSelectValue}
+                                isLoading={assistantsLoading}
+                                onSelect={handleAssistantChange}
+                                onRefresh={refetchAssistants}
+                              />
+                              </TooltipTrigger>
+                              <TooltipContent side="top">
+                                <p>그래프 선택</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+
                         </div>
                         {stream.isLoading ? (
                           <Button
@@ -618,7 +668,8 @@ export function Thread() {
                             className="h-8 w-8 rounded-lg"
                             disabled={
                               isLoading ||
-                              (!input.trim() && contentBlocks.length === 0)
+                              (!input.trim() && contentBlocks.length === 0) ||
+                              !isAssistantSelected
                             }
                           >
                             <ArrowUp className="h-4 w-4" />

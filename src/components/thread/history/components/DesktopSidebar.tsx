@@ -6,6 +6,7 @@ import { NewChatButton } from "./NewChatButton";
 import { ThreadList } from "./ThreadList";
 import { ThreadHistoryLoading } from "./ThreadHistoryLoading";
 import { ICON_SIZE_SM } from "../constants";
+import { SettingsDialog } from "@/components/settings/SettingsDialog";
 
 interface DesktopSidebarProps {
   threads: Thread[];
@@ -43,16 +44,16 @@ export function DesktopSidebar({
       </div>
 
       {/* New Chat button */}
-      <div className="pb-2">
+      <div className="px-3 mb-2">
         <NewChatButton onClick={onNewChat} />
       </div>
 
       {/* Guide button */}
       {onShowGuide && (
-        <div className="pb-2">
+        <div className="px-3 mb-4">
           <Button
             variant="ghost"
-            className="w-full justify-start gap-2 px-3 py-2 text-sm font-medium hover:bg-accent"
+            className="w-full justify-start gap-2 text-sm font-medium hover:bg-accent h-10 cursor-pointer"
             onClick={onShowGuide}
           >
             <BookOpen className={ICON_SIZE_SM} />
@@ -71,6 +72,10 @@ export function DesktopSidebar({
         ) : (
           <ThreadList threads={threads} />
         )}
+      </div>
+
+      <div className="border-t border-border p-4">
+        <SettingsDialog />
       </div>
     </div>
   );
