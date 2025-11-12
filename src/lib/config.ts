@@ -70,6 +70,36 @@ export const defaultConfig: ChatConfig = {
   },
 };
 
+export function mergeConfig(config: Partial<ChatConfig> = {}): ChatConfig {
+  return {
+    branding: { ...defaultConfig.branding, ...config.branding },
+    buttons: { ...defaultConfig.buttons, ...config.buttons },
+    threads: { ...defaultConfig.threads, ...config.threads },
+    theme: { ...defaultConfig.theme, ...config.theme },
+    ui: { ...defaultConfig.ui, ...config.ui },
+  };
+}
+
+// Load chat openers from separate file
+async function loadChatOpeners(): Promise<string[] | undefined> {
+  try {
+    const response = await fetch("/chat-openers.yaml");
+    if (!response.ok) {
+      console.warn("Failed to fetch chat-openers.yaml, status:", response.status);
+      return undefined;
+    }
+
+    const yamlText = await response.text();
+    console.log("chat-openers.yaml loaded successfully");
+    const data = yaml.load(yamlText) as { chatOpeners?: string[] };
+    console.log("Parsed chat openers:", data.chatOpeners?.length, "items");
+    return data.chatOpeners;
+  } catch (error) {
+    console.warn("Failed to load chat-openers.yaml:", error);
+    return undefined;
+  }
+}
+
 // Load configuration from YAML file
 export async function loadConfig(): Promise<ChatConfig> {
   try {
@@ -84,14 +114,17 @@ export async function loadConfig(): Promise<ChatConfig> {
     }
     const yamlText = await response.text();
     const config = yaml.load(yamlText) as Partial<ChatConfig>;
-    // Merge with default config to ensure all required fields exist
-    return {
-      branding: { ...defaultConfig.branding, ...config.branding },
-      buttons: { ...defaultConfig.buttons, ...config.buttons },
-      threads: { ...defaultConfig.threads, ...config.threads },
-      theme: { ...defaultConfig.theme, ...config.theme },
-      ui: { ...defaultConfig.ui, ...config.ui },
-    };
+
+    // Load chat openers separately
+    const chatOpeners = await loadChatOpeners();
+
+    // Merge config with chat openers
+    const mergedConfig = mergeConfig(config);
+    if (chatOpeners) {
+      mergedConfig.branding.chatOpeners = chatOpeners;
+    }
+
+    return mergedConfig;
   } catch (error) {
     console.error("Error loading config:", error);
     return defaultConfig;

@@ -12,9 +12,9 @@ import {
   searchAssistants,
   getAssistantSchemas,
   updateAssistantConfig,
-  isValidUUID,
   type AssistantConfig as AssistantConfigType,
   type AssistantSchemas,
+  type Assistant,
 } from "@/lib/assistant-api";
 
 interface AssistantConfigContextType {
@@ -25,6 +25,9 @@ interface AssistantConfigContextType {
   error: string | null;
   updateConfig: (newConfig: AssistantConfigType) => Promise<boolean>;
   refetchConfig: () => Promise<void>;
+  assistants: Assistant[];
+  assistantsLoading: boolean;
+  refetchAssistants: () => Promise<void>;
 }
 
 const AssistantConfigContext = createContext<
@@ -39,9 +42,38 @@ export const AssistantConfigProvider: React.FC<{
 }> = ({ children, apiUrl, assistantId: initialAssistantId, apiKey }) => {
   const [config, setConfig] = useState<AssistantConfigType | null>(null);
   const [schemas, setSchemas] = useState<AssistantSchemas | null>(null);
-  const [assistantId, setAssistantId] = useState<string | null>(null);
+  // Always start with no assistant selected; fetchConfig will populate it once resolved.
+  const [assistantId, setAssistantId] = useState<string | null>(() => null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [assistants, setAssistants] = useState<Assistant[]>([]);
+  const [assistantsLoading, setAssistantsLoading] = useState(false);
+
+  const fetchAssistants = useCallback(async () => {
+    if (!apiUrl) {
+      return;
+    }
+
+    setAssistantsLoading(true);
+    try {
+      const list = await searchAssistants(
+        apiUrl,
+        {
+          limit: 50,
+          sort_order: "asc",
+          sort_by: "assistant_id",
+          select: ["assistant_id", "graph_id", "name"],
+        },
+        apiKey || undefined
+      );
+      setAssistants(list);
+    } catch (error) {
+      console.error("Failed to fetch assistants:", error);
+      setAssistants([]);
+    } finally {
+      setAssistantsLoading(false);
+    }
+  }, [apiUrl, apiKey]);
 
   const fetchConfig = useCallback(async () => {
     setIsLoading(true);
@@ -49,10 +81,16 @@ export const AssistantConfigProvider: React.FC<{
 
     try {
       let actualAssistantId = initialAssistantId;
+      let assistant = await getAssistant(
+        apiUrl,
+        actualAssistantId,
+        apiKey || undefined
+      );
 
-      // If the initial ID is not a UUID, search for assistants by graph_id
-      if (!isValidUUID(initialAssistantId)) {
-        console.info(`Searching for assistant with graph_id: ${initialAssistantId}`);
+      if (!assistant) {
+        console.info(
+          `Assistant "${initialAssistantId}" not found directly, searching by graph_id`
+        );
         const assistants = await searchAssistants(
           apiUrl,
           {
@@ -67,39 +105,48 @@ export const AssistantConfigProvider: React.FC<{
 
         if (assistants.length > 0) {
           actualAssistantId = assistants[0].assistant_id;
-          console.info(`Found assistant ID: ${actualAssistantId} for graph_id: ${initialAssistantId}`);
+          console.info(
+            `Resolved graph_id "${initialAssistantId}" to assistant ID: ${actualAssistantId}`
+          );
+          assistant = await getAssistant(
+            apiUrl,
+            actualAssistantId,
+            apiKey || undefined
+          );
         } else {
-          console.warn(`No assistant found for graph_id: ${initialAssistantId}`);
-          setIsLoading(false);
+          const message = `No assistant found for graph_id: ${initialAssistantId}`;
+          console.warn(message);
+          setError(message);
+          setConfig(null);
+          setSchemas(null);
+          setAssistantId(null);
           return;
         }
       }
 
-      setAssistantId(actualAssistantId);
-
-      // Fetch assistant config
-      const assistant = await getAssistant(
-        apiUrl,
-        actualAssistantId,
-        apiKey || undefined
-      );
-
-      if (assistant) {
-        setConfig(assistant.config);
+      if (!assistant) {
+        const message = `Failed to load assistant configuration for ID: ${actualAssistantId}`;
+        console.error(message);
+        setError(message);
+        setConfig(null);
+        setSchemas(null);
+        setAssistantId(null);
+        return;
       }
 
-      // Fetch assistant schemas
+      setAssistantId(actualAssistantId);
+      setConfig(assistant.config);
+
       const assistantSchemas = await getAssistantSchemas(
         apiUrl,
         actualAssistantId,
         apiKey || undefined
       );
 
-      if (assistantSchemas) {
-        setSchemas(assistantSchemas);
-      }
+      setSchemas(assistantSchemas);
     } catch (err) {
       console.error("Error fetching assistant config:", err);
+      setError("Unable to load assistant configuration");
     } finally {
       setIsLoading(false);
     }
@@ -108,6 +155,10 @@ export const AssistantConfigProvider: React.FC<{
   useEffect(() => {
     fetchConfig();
   }, [fetchConfig]);
+
+  useEffect(() => {
+    fetchAssistants();
+  }, [fetchAssistants]);
 
   const updateConfig = useCallback(async (
     newConfig: AssistantConfigType
@@ -144,8 +195,22 @@ export const AssistantConfigProvider: React.FC<{
       error,
       updateConfig,
       refetchConfig: fetchConfig,
+      assistants,
+      assistantsLoading,
+      refetchAssistants: fetchAssistants,
     }),
-    [config, schemas, assistantId, isLoading, error, updateConfig, fetchConfig]
+    [
+      config,
+      schemas,
+      assistantId,
+      isLoading,
+      error,
+      updateConfig,
+      fetchConfig,
+      assistants,
+      assistantsLoading,
+      fetchAssistants,
+    ]
   );
 
   return (

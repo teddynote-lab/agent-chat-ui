@@ -6,7 +6,7 @@ export function ThreadHistoryLoading() {
   return (
     <ThreadListContainer>
       {Array.from({ length: SKELETON_LOADING_COUNT }).map((_, i) => (
-        <Skeleton key={`skeleton-${i}`} className="h-10 w-full" />
+        <Skeleton key={`skeleton-${i}`} className="w-full h-10" />
       ))}
     </ThreadListContainer>
   );

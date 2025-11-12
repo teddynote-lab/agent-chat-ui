@@ -18,7 +18,6 @@ import { getApiKey } from "@/lib/api-key";
 
 // Default values for the form
 const DEFAULT_API_URL = "http://localhost:2024";
-const DEFAULT_ASSISTANT_ID = "agent";
 
 interface ConnectionDialogProps {
   open: boolean;
@@ -96,7 +95,7 @@ export function ConnectionDialog({ open, onOpenChange }: ConnectionDialogProps) 
               id="assistantId"
               name="assistantId"
               className="bg-background"
-              defaultValue={assistantId || DEFAULT_ASSISTANT_ID}
+              defaultValue={assistantId || ""}
               required
             />
           </div>

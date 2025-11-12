@@ -144,7 +144,7 @@ export function SettingsDialog() {
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          className="w-full justify-start gap-2 hover:bg-accent"
+          className="w-full justify-start gap-2 hover:bg-accent cursor-pointer"
         >
           <SettingsIcon className="size-5" />
           <span>설정</span>

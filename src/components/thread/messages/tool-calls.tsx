@@ -179,11 +179,11 @@ export function ToolResult({
       : contentStr;
 
   return (
-    <div className={`mx-auto grid ${userSettings.chatWidth === "default" ? "max-w-3xl" : "max-w-5xl"} grid-rows-[1fr_auto] gap-4`}>
+    <div className={`mx-auto grid ${userSettings.chatWidth === "default" ? "max-w-3xl" : "max-w-5xl"} grid-rows-[1fr_auto] gap-0`}>
       <div className="overflow-hidden rounded-xl border border-border/50 dark:border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md hover:border-border dark:hover:border-border/80">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full border-b border-border/50 dark:border-border bg-muted/30 dark:bg-muted/50 px-5 py-3.5 text-left transition-all duration-200 hover:bg-muted/50 dark:hover:bg-muted/70"
+          className="w-full border-b border-border/50 dark:border-border bg-muted/30 dark:bg-muted/50 px-5 py-3.5 text-left transition-all duration-200 hover:bg-muted/50 dark:hover:bg-muted/70 cursor-pointer"
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -203,8 +203,8 @@ export function ToolResult({
                 </svg>
               </div>
               {message.name ? (
-                <h3 className="font-medium text-foreground text-sm">
-                  Tool Result:{" "}
+                <h3 className="font-medium text-foreground text-sm flex gap-2 items-center">
+                  Tool Result
                   <code className="rounded-md bg-muted/70 px-2 py-0.5 text-xs font-mono text-muted-foreground/80 border border-border/30">
                     {message.name}
                   </code>
@@ -286,7 +286,7 @@ export function ToolResult({
                         </tbody>
                       </table>
                     ) : (
-                      <code className="block rounded-lg bg-muted/40 px-3 py-2.5 text-sm font-mono border border-border/30 leading-relaxed">
+                      <code className="block rounded-lg bg-muted/40 px-3 py-2.5 text-sm font-mono border border-border/30 leading-relaxed whitespace-pre-wrap">
                         {displayedContent}
                       </code>
                     )}
