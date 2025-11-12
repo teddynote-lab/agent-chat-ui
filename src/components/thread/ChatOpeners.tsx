@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,11 +15,11 @@ export function ChatOpeners({ chatOpeners, onSelectOpener, disabled }: ChatOpene
   const totalPages = Math.ceil(chatOpeners.length / itemsPerPage);
   const shouldShowCarousel = chatOpeners.length > itemsPerPage;
 
-  const getCurrentPageItems = () => {
+  const currentItems = useMemo(() => {
     const startIndex = currentPage * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return chatOpeners.slice(startIndex, endIndex);
-  };
+  }, [currentPage, chatOpeners, itemsPerPage]);
 
   const goToNextPage = () => {
     setCurrentPage((prev) => (prev + 1) % totalPages);
@@ -29,14 +29,12 @@ export function ChatOpeners({ chatOpeners, onSelectOpener, disabled }: ChatOpene
     setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
   };
 
-  const currentItems = getCurrentPageItems();
-
   const openerButtonHandler = (opener: string) => () => {
     if (disabled) {
       return;
     }
     onSelectOpener(opener);
-  }
+  };
 
   return (
     <div className="flex flex-col gap-3 w-[calc(100%_-_12rem)]">
@@ -54,7 +52,11 @@ export function ChatOpeners({ chatOpeners, onSelectOpener, disabled }: ChatOpene
               <button
                 key={`${currentPage}-${index}`}
                 onClick={openerButtonHandler(opener)}
-                className="group relative overflow-hidden rounded-xl border border-border bg-card hover:bg-accent hover:border-primary transition-all duration-200 p-4 text-left shadow-sm hover:shadow-md min-h-[5rem] flex items-center cursor-pointer"
+                disabled={disabled}
+                className={cn(
+                  "group relative overflow-hidden rounded-xl border border-border bg-card hover:bg-accent hover:border-primary transition-all duration-200 p-4 text-left shadow-sm hover:shadow-md min-h-[5rem] flex items-center cursor-pointer",
+                  disabled && "opacity-50 cursor-not-allowed hover:bg-card hover:border-border"
+                )}
               >
                 <p className="text-sm text-foreground line-clamp-2 group-hover:text-primary transition-colors break-keep">
                   {opener}
