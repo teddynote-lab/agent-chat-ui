@@ -37,7 +37,10 @@ export default function ThreadHistory({ onShowGuide }: ThreadHistoryProps) {
     setThreadsLoading(true);
     getThreads()
       .then(setThreads)
-      .catch(console.error)
+      .catch((error) => {
+        console.error(error);
+        setThreads([]); // Set empty array on error to show clean empty state
+      })
       .finally(() => setThreadsLoading(false));
   }, [
     finalApiUrl,
