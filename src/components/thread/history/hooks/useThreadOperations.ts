@@ -1,5 +1,5 @@
-import { useStreamContext } from "@/providers/Stream";
-import { useThreads } from "@/providers/Thread";
+import { useStreamContext } from "@/hooks/useStreamContext";
+import { useThreads } from "@/hooks/useThreads";
 import { useQueryState } from "nuqs";
 import { toast } from "sonner";
 import { UI_TEXT } from "../constants";

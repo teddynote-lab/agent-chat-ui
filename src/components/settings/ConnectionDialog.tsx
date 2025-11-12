@@ -104,7 +104,7 @@ export function ConnectionDialog({ open, onOpenChange }: ConnectionDialogProps) 
             <Label htmlFor="apiKey">LangSmith API Key</Label>
             <p className="text-muted-foreground text-sm">
               This is <strong>NOT</strong> required if using a local LangGraph
-              server. This value is stored in your browser's local storage and
+              server. This value is stored in your browser&apos;s local storage and
               is only used to authenticate requests sent to your LangGraph
               server.
             </p>

@@ -12,7 +12,7 @@ import { createDefaultHumanResponse } from "../utils";
 import { toast } from "sonner";
 import { HumanInterrupt, HumanResponse } from "@langchain/langgraph/prebuilt";
 import { END } from "@langchain/langgraph/web";
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext } from "@/hooks/useStreamContext";
 
 interface UseInterruptedActionsInput {
   interrupt: HumanInterrupt;
@@ -91,7 +91,7 @@ export default function useInterruptedActions({
         },
       );
       return true;
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("Error sending human response", e);
       return false;
     }
@@ -177,10 +177,11 @@ export default function useInterruptedActions({
         if (!errorOccurred) {
           setStreamFinished(true);
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         console.error("Error sending human response", e);
 
-        if ("message" in e && e.message.includes("Invalid assistant ID")) {
+        const error = e as { message?: string };
+        if (error.message && error.message.includes("Invalid assistant ID")) {
           toast("Error: Invalid assistant ID", {
             description:
               "The provided assistant ID was not found in this graph. Please update the assistant ID in the settings and try again.",

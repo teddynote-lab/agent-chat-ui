@@ -3,7 +3,7 @@ import { ReactNode, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { UI } from "@/lib/constants";
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext } from "@/hooks/useStreamContext";
 import { useState, FormEvent } from "react";
 import { Button } from "../ui/button";
 import { Checkpoint, Message } from "@langchain/langgraph-sdk";
@@ -45,9 +45,9 @@ import {
   ArtifactTitle,
   useArtifactContext,
 } from "./artifact";
-import { useSettings } from "@/providers/Settings";
+import { useSettings } from "@/hooks/useSettings";
 import { FullDescriptionModal } from "./FullDescriptionModal";
-import { useAssistantConfig } from "@/providers/AssistantConfig";
+import { useAssistantConfig } from "@/hooks/useAssistantConfig";
 import { AssistantSelector } from "./AssistantSelector";
 import { ChatOpeners } from "./ChatOpeners";
 
@@ -203,7 +203,7 @@ export function Thread() {
       return;
     }
     try {
-      const message = (stream.error as any).message;
+      const message = (stream.error as { message?: string }).message;
       if (!message || lastError.current === message) {
         // Message has already been logged. do not modify ref, return early.
         return;
@@ -414,6 +414,7 @@ export function Thread() {
                     damping: 30,
                   }}
                 >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={config.branding.logoPath}
                     alt="Logo"
@@ -488,6 +489,7 @@ export function Thread() {
                     )}>
                       <div className="flex flex-col items-center gap-3">
                         <div className="flex items-center gap-3">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={config.branding.logoPath}
                             alt="Logo"

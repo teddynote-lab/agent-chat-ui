@@ -60,7 +60,7 @@ const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
   );
 };
 
-const defaultComponents: any = {
+const defaultComponents: Record<string, unknown> = {
   h1: ({ className, ...props }: { className?: string }) => (
     <h1
       className={cn(

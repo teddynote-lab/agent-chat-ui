@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { MarkdownText } from "./markdown-text";
-import { useSettings } from "@/providers/Settings";
+import { useSettings } from "@/hooks/useSettings";
 
 interface FullDescriptionModalProps {
   open: boolean;

@@ -1,6 +1,5 @@
 import React, {
   createContext,
-  useContext,
   useState,
   useEffect,
   useMemo,
@@ -18,7 +17,7 @@ import {
   type Assistant,
 } from "@/lib/assistant-api";
 
-interface AssistantConfigContextType {
+export interface AssistantConfigContextType {
   config: AssistantConfigType | null;
   schemas: AssistantSchemas | null;
   assistantId: string | null;
@@ -31,7 +30,7 @@ interface AssistantConfigContextType {
   refetchAssistants: () => Promise<void>;
 }
 
-const AssistantConfigContext = createContext<
+export const AssistantConfigContext = createContext<
   AssistantConfigContextType | undefined
 >(undefined);
 
@@ -246,14 +245,4 @@ export const AssistantConfigProvider: React.FC<{
       {children}
     </AssistantConfigContext.Provider>
   );
-};
-
-export const useAssistantConfig = (): AssistantConfigContextType => {
-  const context = useContext(AssistantConfigContext);
-  if (context === undefined) {
-    throw new Error(
-      "useAssistantConfig must be used within an AssistantConfigProvider"
-    );
-  }
-  return context;
 };

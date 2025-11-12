@@ -1,33 +1,54 @@
+import { createRequire } from "module";
 import js from "@eslint/js";
-import globals from "globals";
-import reactHooks from "eslint-plugin-react-hooks";
-import reactRefresh from "eslint-plugin-react-refresh";
-import tseslint from "typescript-eslint";
+import path from "path";
+import { fileURLToPath } from "url";
 
-export default tseslint.config(
-  { ignores: ["dist"] },
+const require = createRequire(import.meta.url);
+const { FlatCompat } = require("@eslint/eslintrc");
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+});
+
+export default [
   {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ["**/*.{ts,tsx}"],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-    },
-    plugins: {
-      "react-hooks": reactHooks,
-      "react-refresh": reactRefresh,
-    },
+    ignores: [
+      ".next/**",
+      "out/**",
+      "node_modules/**",
+      "dist/**",
+      ".cache/**",
+      "build/**",
+    ],
+  },
+
+  // Extend Next.js configs
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
+
+  // Custom overrides
+  {
     rules: {
-      ...reactHooks.configs.recommended.rules,
-      "@typescript-eslint/no-explicit-any": 0,
+      // TypeScript rules
+      "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": [
         "warn",
-        { args: "none", argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+        {
+          args: "none",
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_"
+        },
       ],
-      "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true },
-      ],
+
+      // Next.js specific rules
+      "@next/next/no-html-link-for-pages": "error",
+
+      // Disable react-refresh rule (not applicable to Next.js)
+      // Next.js has its own Fast Refresh implementation
+      "react-refresh/only-export-components": "off",
     },
   },
-);
+];

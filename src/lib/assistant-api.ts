@@ -26,30 +26,30 @@ type AssistantSelectField =
   | "name";
 
 export interface AssistantConfig {
-  configurable?: Record<string, any>;
-  [key: string]: any;
+  configurable?: Record<string, unknown>;
+  [key: string]: unknown;
 }
 
 export interface Assistant {
   assistant_id: string;
   graph_id: string;
   config: AssistantConfig;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   created_at: string;
   updated_at: string;
   name?: string;
   description?: string;
   version?: number;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
 }
 
 export interface AssistantSchemas {
   graph_id: string;
-  input_schema: Record<string, any>;
-  output_schema: Record<string, any>;
-  state_schema: Record<string, any>;
-  config_schema: Record<string, any>;
-  context_schema: Record<string, any>;
+  input_schema: Record<string, unknown>;
+  output_schema: Record<string, unknown>;
+  state_schema: Record<string, unknown>;
+  config_schema: Record<string, unknown>;
+  context_schema: Record<string, unknown>;
 }
 
 export interface SearchAssistantsRequest {
@@ -95,7 +95,7 @@ export async function searchAssistants(
 ): Promise<Assistant[]> {
   try {
     const client = createClient(apiUrl, apiKey);
-    const response = await client.assistants.search(request as any);
+    const response = await client.assistants.search(request);
     return response as Assistant[];
   } catch (error) {
     console.error("Failed to search assistants:", error);
