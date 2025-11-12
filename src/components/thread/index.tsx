@@ -246,10 +246,13 @@ export function Thread() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    if (!isAssistantSelected) {
+      toast.error("그래프를 먼저 선택해주세요.");
+      return;
+    }
     if (
       (input.trim().length === 0 && contentBlocks.length === 0) ||
-      isLoading ||
-      !isAssistantSelected
+      isLoading
     )
       return;
     setFirstTokenReceived(false);
@@ -408,7 +411,6 @@ export function Thread() {
                   className="flex cursor-pointer items-center gap-2 ml-2"
                   onClick={() => setThreadId(null)}
                   animate={{
-                    //marginLeft: config.threads.showHistory && !chatHistoryOpen ? 48 : 0,
                     translateX: config.threads.showHistory && !chatHistoryOpen ? 48 : 0,
                   }}
                   transition={{
@@ -643,7 +645,7 @@ export function Thread() {
                               />
                               </TooltipTrigger>
                               <TooltipContent side="top">
-                                <p>{hideToolCalls ? "Show tool calls" : "Hide tool calls"}</p>
+                                <p>그래프 선택</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>

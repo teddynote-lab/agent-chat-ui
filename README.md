@@ -1,6 +1,6 @@
 # Agent Chat UI
 
-![TeddyNote Chat](assets/chat-interface.png?)
+![TeddyNote Chat](assets/chat-interface.png)
 
 LangGraph 에이전트를 위한 Next.js 기반 채팅 인터페이스입니다. YAML 기반 설정을 통한 높은 커스터마이징 옵션을 제공합니다.
 

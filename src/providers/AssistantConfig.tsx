@@ -67,6 +67,9 @@ export const AssistantConfigProvider: React.FC<{
         apiKey || undefined
       );
       setAssistants(list);
+    } catch (error) {
+      console.error("Failed to fetch assistants:", error);
+      setAssistants([]);
     } finally {
       setAssistantsLoading(false);
     }

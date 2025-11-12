@@ -1,5 +1,4 @@
 import { RefreshCw } from "lucide-react";
-import { Label } from "../ui/label";
 import { cn } from "@/lib/utils";
 import type { Assistant } from "@/lib/assistant-api";
 
@@ -42,7 +41,7 @@ export function AssistantSelector({
           onSelect(value);
         }}
         disabled={assistants.length === 0 || isLoading}
-        className="w-full rounded-xl outline-none aria-selected:border-none border-none bg-none px-0 py-2 text-sm focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
+        className="w-full rounded-xl outline-none aria-selected:border-none border-none bg-transparent px-0 py-2 text-sm focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
       >
         <option value="none">
           {isLoading

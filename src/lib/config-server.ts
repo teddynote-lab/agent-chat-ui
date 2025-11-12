@@ -6,7 +6,11 @@ import { ChatConfig, defaultConfig, mergeConfig } from "./config";
 
 const CONFIG_FILES = ["settings.yaml", "chat-config.yaml"];
 
-// Load chat openers from separate file on server
+/**
+ * Loads chat openers from a separate YAML file on the server side.
+ *
+ * @returns Array of chat opener strings if successful, undefined otherwise
+ */
 async function loadServerChatOpeners(): Promise<string[] | undefined> {
   try {
     const filePath = path.join(process.cwd(), "public", "chat-openers.yaml");
@@ -22,6 +26,18 @@ async function loadServerChatOpeners(): Promise<string[] | undefined> {
   }
 }
 
+/**
+ * Loads configuration from YAML files on the server side.
+ *
+ * Attempts to load configuration from multiple file sources in order:
+ * 1. settings.yaml
+ * 2. chat-config.yaml
+ *
+ * Also loads chat openers from a separate file (chat-openers.yaml) if available.
+ * Falls back to the default configuration if no config files are found.
+ *
+ * @returns The loaded configuration merged with defaults, or the default config if no files are found
+ */
 export async function loadServerConfig(): Promise<ChatConfig> {
   let config: ChatConfig | null = null;
 
